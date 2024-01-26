@@ -1,5 +1,6 @@
 package com.w2m.heroestest.core.restapi.server.controllers;
 
+import com.w2m.heroestest.core.config.aspects.annotations.LogExecutionTime;
 import com.w2m.heroestest.core.constants.RequestMappings;
 import com.w2m.heroestest.core.model.domain.SuperHeroDomain;
 import com.w2m.heroestest.core.model.enums.SuperPower;
@@ -45,6 +46,7 @@ public class SuperHeroeController extends BaseController {
     @ResponseStatus(code = HttpStatus.OK)
     @Operation(summary = "Gets All the superheroes")
     //  @PreAuthorize("hasAnyAuthority('CONSULTANT_TYPE1')")
+    @LogExecutionTime
     public ResponseEntity<List<HeroResponse>> getAllSuperHeroes() {
         LOGGER.debug("We can log whatever we need...");
         List<SuperHeroDomain> allheroes = this.superHeroesService.getAllSuperHeroes();
@@ -60,6 +62,7 @@ public class SuperHeroeController extends BaseController {
     @GetMapping("/page")
     @ResponseStatus(code = HttpStatus.OK)
     @Operation(summary = "Pages All the superheroes")
+    @LogExecutionTime
     //  @PreAuthorize("hasAnyAuthority('CONSULTANT_TYPE1')")
     public ResponseEntity<Page<HeroResponse>> pageAllSuperHeroes(@ParameterObject final Pageable pageable) {
         LOGGER.debug("We can log whatever we need...");
@@ -82,6 +85,7 @@ public class SuperHeroeController extends BaseController {
     @GetMapping("/byName")
     @ResponseStatus(code = HttpStatus.OK)
     @Operation(summary = "Gets All the superheroes by name. The name IS CASE SENSITIVE")
+    @LogExecutionTime
     //  @PreAuthorize("hasAnyAuthority('CONSULTANT_TYPE1')")
     public ResponseEntity<List<HeroResponse>> getAllSuperHeroesByName(@RequestParam(required = true) String name) {
         LOGGER.debug("We can log whatever we need...");
@@ -103,6 +107,7 @@ public class SuperHeroeController extends BaseController {
     @GetMapping("/byName/page")
     @ResponseStatus(code = HttpStatus.OK)
     @Operation(summary = "Pages All the superheroes by name. The name ignores case sensitive")
+    @LogExecutionTime
     //  @PreAuthorize("hasAnyAuthority('CONSULTANT_TYPE1')")
     public ResponseEntity<Page<HeroResponse>> pageAllSuperHeroesByName(@RequestParam(required = true) String name,
             @ParameterObject final Pageable pageable) {
@@ -120,6 +125,7 @@ public class SuperHeroeController extends BaseController {
     @GetMapping("/byPower")
     @ResponseStatus(code = HttpStatus.OK)
     @Operation(summary = "Gets All the superheroes with a particular power")
+    @LogExecutionTime
     public ResponseEntity<List<HeroResponse>> getAllSuperHeroesByPower(
             @RequestParam(required = true) SuperPower power) {
         LOGGER.debug("We can log whatever we need...");
@@ -135,6 +141,7 @@ public class SuperHeroeController extends BaseController {
     @GetMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
     @Operation(summary = "Gets a superhero by his/her id")
+    @LogExecutionTime
     //  @PreAuthorize("hasAnyAuthority('CONSULTANT_TYPE1')")
     public ResponseEntity<HeroResponse> getSuperHeroById(@PathVariable(value = "id", required = true) Long id) {
         LOGGER.debug("We can log whatever we need...");
@@ -153,6 +160,7 @@ public class SuperHeroeController extends BaseController {
     @Operation(summary = "Creates a new hero")
     @PostMapping
     @Transactional(propagation = Propagation.REQUIRED)
+    @LogExecutionTime
 //    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public ResponseEntity<HeroResponse> createSuperHero(@Valid @RequestBody final HeroRequest heroRequest) {
 
@@ -167,6 +175,7 @@ public class SuperHeroeController extends BaseController {
     @PutMapping("/{id}")
     @Transactional(propagation = Propagation.REQUIRED)
     @Operation(summary = "Updates an existing hero")
+    @LogExecutionTime
 //    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public ResponseEntity<HeroResponse> updateSuperHero(@PathVariable(value = "id", required = true) Long id,
             @RequestBody HeroRequest heroRequest) {
@@ -181,6 +190,7 @@ public class SuperHeroeController extends BaseController {
     @PatchMapping("/{id}")
     @Transactional(propagation = Propagation.REQUIRED)
     @Operation(summary = "Adds a superpower to an existing hero")
+    @LogExecutionTime
 //    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public ResponseEntity<HeroResponse> addPowerToSuperHero(@PathVariable(value = "id", required = true) Long id,
             @RequestParam(required = true) SuperPower power) {
@@ -194,6 +204,7 @@ public class SuperHeroeController extends BaseController {
     @DeleteMapping("/{id}")
     @Transactional(propagation = Propagation.REQUIRED)
     @Operation(summary = "Deletes a hero by his/her id")
+    @LogExecutionTime
 //    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public ResponseEntity<HttpStatus> deleteSuperHero(@PathVariable("id") long id) {
 
@@ -208,6 +219,7 @@ public class SuperHeroeController extends BaseController {
     @DeleteMapping
     @Transactional(propagation = Propagation.REQUIRED)
     @Operation(summary = "Deletes all heroes")
+    @LogExecutionTime
 //    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public ResponseEntity<HttpStatus> deleteAllSuperHeros() {
         LOGGER.debug("Init - Delete All heroes");
