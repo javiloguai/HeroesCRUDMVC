@@ -53,7 +53,7 @@ public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesS
     }
 
     @Override
-    //@Cacheable(cacheNames = "pagedallheroes")
+    @Cacheable(cacheNames = "pagedallheroes")
     public Page<SuperHeroDomain> getAllSuperHeroes(Pageable pageable) {
         Page<SuperHeroEntity> pagedResults = superHeroRepository.findAll(pageable);
 
@@ -71,6 +71,7 @@ public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesS
     }
 
     @Override
+    @Cacheable(cacheNames = "pagedheroes", key = "#name")
     public Page<SuperHeroDomain> getAllSuperHeroesByName(@NotNull String name, Pageable pageable) {
         if (ParamUtils.paramNotInformed(name)) {
             throw new BusinessRuleViolatedException("name field is Mandatory");
@@ -101,7 +102,9 @@ public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesS
 
     @Override
     @Caching(evict = { @CacheEvict(value = "hero", allEntries = true), @CacheEvict(value = "heroes", allEntries = true),
-            @CacheEvict(value = "allheroes", allEntries = true), @CacheEvict(value = "powers", allEntries = true) })
+            @CacheEvict(value = "pagedheroes", allEntries = true), @CacheEvict(value = "allheroes", allEntries = true),
+            @CacheEvict(value = "pagedallheroes", allEntries = true),
+            @CacheEvict(value = "powers", allEntries = true) })
     public SuperHeroDomain createSuperHero(final SuperHeroDTO superHeroDTO) {
 
         this.checkIfHeroAlreadyExists(superHeroDTO);
@@ -126,7 +129,9 @@ public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesS
 
     @Override
     @Caching(evict = { @CacheEvict(value = "hero", allEntries = true), @CacheEvict(value = "heroes", allEntries = true),
-            @CacheEvict(value = "allheroes", allEntries = true), @CacheEvict(value = "powers", allEntries = true) })
+            @CacheEvict(value = "pagedheroes", allEntries = true), @CacheEvict(value = "allheroes", allEntries = true),
+            @CacheEvict(value = "pagedallheroes", allEntries = true),
+            @CacheEvict(value = "powers", allEntries = true) })
     public SuperHeroDomain updateSuperHero(@NotNull Long id, @NotNull SuperHeroDTO superHeroDTO) {
 
         this.checkIfHeroAlreadyExists(id, superHeroDTO);
@@ -152,7 +157,10 @@ public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesS
     }
 
     @Override
-    @Caching(evict = { @CacheEvict(value = "powers", allEntries = true) })
+    @Caching(evict = { @CacheEvict(value = "hero", allEntries = true), @CacheEvict(value = "heroes", allEntries = true),
+            @CacheEvict(value = "pagedheroes", allEntries = true), @CacheEvict(value = "allheroes", allEntries = true),
+            @CacheEvict(value = "pagedallheroes", allEntries = true),
+            @CacheEvict(value = "powers", allEntries = true) })
     public SuperHeroDomain addSuperPower(@NotNull Long id, @NotNull SuperPower power) {
         if (id == null) {
             throw new BusinessRuleViolatedException("Id field is Mandatory");
