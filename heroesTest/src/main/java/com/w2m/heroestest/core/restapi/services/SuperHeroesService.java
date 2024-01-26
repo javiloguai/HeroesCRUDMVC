@@ -4,6 +4,8 @@ import com.w2m.heroestest.core.model.domain.SuperHeroDomain;
 import com.w2m.heroestest.core.model.dto.SuperHeroDTO;
 import com.w2m.heroestest.core.model.enums.SuperPower;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -12,13 +14,17 @@ import java.util.List;
  */
 public interface SuperHeroesService {
 
-    List<SuperHeroDomain> getAllSSuperHeroes();
+    List<SuperHeroDomain> getAllSuperHeroes();
 
-    List<SuperHeroDomain> getAllSSuperHeroesByName(@NotNull final String name);
+    Page<SuperHeroDomain> getAllSuperHeroes(final Pageable pageable);
+
+    List<SuperHeroDomain> getAllSuperHeroesByName(@NotNull final String name);
+
+    Page<SuperHeroDomain> getAllSuperHeroesByName(@NotNull final String name, final Pageable pageable);
 
     SuperHeroDomain findById(@NotNull final Long id);
 
-    List<SuperHeroDomain> getAllSSuperHeroesBySuperPower(@NotNull final SuperPower power);
+    List<SuperHeroDomain> getAllSuperHeroesBySuperPower(@NotNull final SuperPower power);
 
     SuperHeroDomain createSuperHero(@NotNull final SuperHeroDTO superHeroDTO);
 

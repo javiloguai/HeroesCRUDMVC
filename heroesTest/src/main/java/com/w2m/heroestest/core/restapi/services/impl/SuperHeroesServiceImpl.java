@@ -22,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -45,25 +47,42 @@ public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesS
 
     @Override
     @Cacheable(cacheNames = "allheroes")
-    public List<SuperHeroDomain> getAllSSuperHeroes() {
+    public List<SuperHeroDomain> getAllSuperHeroes() {
 
         return SuperHeroDataBaseMapper.INSTANCE.entityToDomain(superHeroRepository.findAll());
     }
 
     @Override
+    //@Cacheable(cacheNames = "pagedallheroes")
+    public Page<SuperHeroDomain> getAllSuperHeroes(Pageable pageable) {
+        Page<SuperHeroEntity> pagedResults = superHeroRepository.findAll(pageable);
+
+        return SuperHeroDataBaseMapper.INSTANCE.entityToDomain(pagedResults);
+    }
+
+    @Override
     @Cacheable(cacheNames = "heroes", key = "#name")
-    public List<SuperHeroDomain> getAllSSuperHeroesByName(@NotNull final String name) {
+    public List<SuperHeroDomain> getAllSuperHeroesByName(@NotNull final String name) {
+        if (ParamUtils.paramNotInformed(name)) {
+            throw new BusinessRuleViolatedException("name field is Mandatory");
+        }
+
+        return SuperHeroDataBaseMapper.INSTANCE.entityToDomain(superHeroRepository.findByNameContaining(name));
+    }
+
+    @Override
+    public Page<SuperHeroDomain> getAllSuperHeroesByName(@NotNull String name, Pageable pageable) {
         if (ParamUtils.paramNotInformed(name)) {
             throw new BusinessRuleViolatedException("name field is Mandatory");
         }
 
         return SuperHeroDataBaseMapper.INSTANCE.entityToDomain(
-                superHeroRepository.findByNameContainingIgnoreCase(name));
+                superHeroRepository.findByNameContainingIgnoreCase(name, pageable));
     }
 
     @Override
     @Cacheable(cacheNames = "powers", key = "#power")
-    public List<SuperHeroDomain> getAllSSuperHeroesBySuperPower(@NotNull final SuperPower power) {
+    public List<SuperHeroDomain> getAllSuperHeroesBySuperPower(@NotNull final SuperPower power) {
         if (power == null) {
             throw new BusinessRuleViolatedException("power field is Mandatory");
 

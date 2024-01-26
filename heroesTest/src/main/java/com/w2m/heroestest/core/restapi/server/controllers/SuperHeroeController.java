@@ -13,7 +13,10 @@ import jakarta.validation.Valid;
 import lombok.EqualsAndHashCode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Propagation;
@@ -44,7 +47,24 @@ public class SuperHeroeController extends BaseController {
     //  @PreAuthorize("hasAnyAuthority('CONSULTANT_TYPE1')")
     public ResponseEntity<List<HeroResponse>> getAllSuperHeroes() {
         LOGGER.debug("We can log whatever we need...");
-        List<SuperHeroDomain> allheroes = this.superHeroesService.getAllSSuperHeroes();
+        List<SuperHeroDomain> allheroes = this.superHeroesService.getAllSuperHeroes();
+        LOGGER.debug(
+                "If it's necessary to pick apart the business objects from the response objects we could deal with a mapper here. I'll will not repeat this or implement on the other endpoints, is just an example.");
+        if (allheroes.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(SuperHeroResponseMapper.INSTANCE.toResponses(allheroes), HttpStatus.OK);
+
+    }
+
+    @GetMapping("/page")
+    @ResponseStatus(code = HttpStatus.OK)
+    @Operation(summary = "Pages All the superheroes")
+    //  @PreAuthorize("hasAnyAuthority('CONSULTANT_TYPE1')")
+    public ResponseEntity<Page<HeroResponse>> pageAllSuperHeroes(@ParameterObject final Pageable pageable) {
+        LOGGER.debug("We can log whatever we need...");
+
+        Page<SuperHeroDomain> allheroes = this.superHeroesService.getAllSuperHeroes(pageable);
         LOGGER.debug(
                 "If it's necessary to pick apart the business objects from the response objects we could deal with a mapper here. I'll will not repeat this or implement on the other endpoints, is just an example.");
         if (allheroes.isEmpty()) {
@@ -61,11 +81,33 @@ public class SuperHeroeController extends BaseController {
      */
     @GetMapping("/byName")
     @ResponseStatus(code = HttpStatus.OK)
-    @Operation(summary = "Gets All the superheroes by name")
+    @Operation(summary = "Gets All the superheroes by name. The name IS CASE SENSITIVE")
     //  @PreAuthorize("hasAnyAuthority('CONSULTANT_TYPE1')")
     public ResponseEntity<List<HeroResponse>> getAllSuperHeroesByName(@RequestParam(required = true) String name) {
         LOGGER.debug("We can log whatever we need...");
-        List<SuperHeroDomain> allheroes = this.superHeroesService.getAllSSuperHeroesByName(name);
+        List<SuperHeroDomain> allheroes = this.superHeroesService.getAllSuperHeroesByName(name);
+        LOGGER.debug(
+                "If it's necessary to pick apart the business objects from the response objects we could deal with a mapper here. I'll will not repeat this or implement on the other endpoints, is just an example.");
+        if (allheroes.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(SuperHeroResponseMapper.INSTANCE.toResponses(allheroes), HttpStatus.OK);
+
+    }
+
+    /**
+     * Some javadoc here
+     *
+     * @return List
+     */
+    @GetMapping("/byName/page")
+    @ResponseStatus(code = HttpStatus.OK)
+    @Operation(summary = "Pages All the superheroes by name. The name ignores case sensitive")
+    //  @PreAuthorize("hasAnyAuthority('CONSULTANT_TYPE1')")
+    public ResponseEntity<Page<HeroResponse>> pageAllSuperHeroesByName(@RequestParam(required = true) String name,
+            @ParameterObject final Pageable pageable) {
+        LOGGER.debug("We can log whatever we need...");
+        Page<SuperHeroDomain> allheroes = this.superHeroesService.getAllSuperHeroesByName(name, pageable);
         LOGGER.debug(
                 "If it's necessary to pick apart the business objects from the response objects we could deal with a mapper here. I'll will not repeat this or implement on the other endpoints, is just an example.");
         if (allheroes.isEmpty()) {
@@ -81,7 +123,7 @@ public class SuperHeroeController extends BaseController {
     public ResponseEntity<List<HeroResponse>> getAllSuperHeroesByPower(
             @RequestParam(required = true) SuperPower power) {
         LOGGER.debug("We can log whatever we need...");
-        List<SuperHeroDomain> allheroes = this.superHeroesService.getAllSSuperHeroesBySuperPower(power);
+        List<SuperHeroDomain> allheroes = this.superHeroesService.getAllSuperHeroesBySuperPower(power);
         LOGGER.debug(
                 "If it's necessary to pick apart the business objects from the response objects we could deal with a mapper here. I'll will not repeat this or implement on the other endpoints, is just an example.");
         if (allheroes.isEmpty()) {
