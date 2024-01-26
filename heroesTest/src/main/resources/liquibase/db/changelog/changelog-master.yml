@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - property:
+      dbms: mysql,mariadb,h2,postgresql
+      name: "current.date"
+      value: "NOW()"
+  - include:
+      file: classpath:/liquibase/db/changelog/changes/001-initial-schema.sql
+  - includeAll:
+      path: liquibase/db/changelog/dml
+      errorIfMissingOrEmpty: false

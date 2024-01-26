@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-data-SUPER_HERO-v1.0.0
+      author: tmo
+      comment: "Initialize SUPER_HERO"
+      changes:
+        - loadData:
+            columns:
+              - column:
+                  header: ID
+                  name: ID
+                  type: NUMERIC
+              - column:
+                  header: NAME
+                  name: NAME
+                  type: STRING
+              - column:
+                  header: DESCRIPTION
+                  name: DESCRIPTION
+                  type: STRING
+            commentLineStartsWith: //
+            encoding: UTF-8
+            file: 0001_insert_heroes.csv
+            quotchar: ''''
+            relativeToChangelogFile: true
+            separator: ;
+            tableName: SUPER_HERO
+            usePreparedStatements: true

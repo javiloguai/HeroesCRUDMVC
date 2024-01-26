@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-data-HERO_SUPER_POWER-v1.0.0
+      author: tmo
+      comment: "Initialize HERO_SUPER_POWER"
+      changes:
+        - loadData:
+            columns:
+              - column:
+                  header: ID
+                  name: ID
+                  type: NUMERIC
+              - column:
+                  header: SUPERHERO_ID
+                  name: SUPERHERO_ID
+                  type: NUMERIC
+              - column:
+                  header: SUPER_POWER
+                  name: SUPER_POWER
+                  type: STRING
+            commentLineStartsWith: //
+            encoding: UTF-8
+            file: 0002_insert_powers.csv
+            quotchar: ''''
+            relativeToChangelogFile: true
+            separator: ;
+            tableName: HERO_SUPER_POWER
+            usePreparedStatements: true
