@@ -19,6 +19,9 @@ import jakarta.validation.constraints.NotNull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -41,12 +44,14 @@ public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesS
     private HeroSuperPowerRepository heroSuperPowerRepository;
 
     @Override
+    @Cacheable(cacheNames = "allheroes")
     public List<SuperHeroDomain> getAllSSuperHeroes() {
 
         return SuperHeroDataBaseMapper.INSTANCE.entityToDomain(superHeroRepository.findAll());
     }
 
     @Override
+    @Cacheable(cacheNames = "heroes", key = "#name")
     public List<SuperHeroDomain> getAllSSuperHeroesByName(@NotNull final String name) {
         if (ParamUtils.paramNotInformed(name)) {
             throw new BusinessRuleViolatedException("name field is Mandatory");
@@ -57,6 +62,7 @@ public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesS
     }
 
     @Override
+    @Cacheable(cacheNames = "powers", key = "#power")
     public List<SuperHeroDomain> getAllSSuperHeroesBySuperPower(@NotNull final SuperPower power) {
         if (power == null) {
             throw new BusinessRuleViolatedException("power field is Mandatory");
@@ -69,11 +75,14 @@ public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesS
     }
 
     @Override
+    @Cacheable(cacheNames = "hero", key = "#id")
     public SuperHeroDomain findById(@NotNull final Long id) {
         return SuperHeroDataBaseMapper.INSTANCE.entityToDomain(getEntityById(id));
     }
 
     @Override
+    @Caching(evict = { @CacheEvict(value = "hero", allEntries = true), @CacheEvict(value = "heroes", allEntries = true),
+            @CacheEvict(value = "allheroes", allEntries = true), @CacheEvict(value = "powers", allEntries = true) })
     public SuperHeroDomain createSuperHero(final SuperHeroDTO superHeroDTO) {
 
         this.checkIfHeroAlreadyExists(superHeroDTO);
@@ -97,6 +106,8 @@ public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesS
     }
 
     @Override
+    @Caching(evict = { @CacheEvict(value = "hero", allEntries = true), @CacheEvict(value = "heroes", allEntries = true),
+            @CacheEvict(value = "allheroes", allEntries = true), @CacheEvict(value = "powers", allEntries = true) })
     public SuperHeroDomain updateSuperHero(@NotNull Long id, @NotNull SuperHeroDTO superHeroDTO) {
 
         this.checkIfHeroAlreadyExists(id, superHeroDTO);
@@ -122,6 +133,7 @@ public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesS
     }
 
     @Override
+    @Caching(evict = { @CacheEvict(value = "powers", allEntries = true) })
     public SuperHeroDomain addSuperPower(@NotNull Long id, @NotNull SuperPower power) {
         if (id == null) {
             throw new BusinessRuleViolatedException("Id field is Mandatory");
@@ -138,6 +150,8 @@ public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesS
     }
 
     @Override
+    @Caching(evict = { @CacheEvict(value = "hero", allEntries = true), @CacheEvict(value = "heroes", allEntries = true),
+            @CacheEvict(value = "allheroes", allEntries = true), @CacheEvict(value = "powers", allEntries = true) })
     public void deleteSuperHeroById(long id) {
 
         heroSuperPowerRepository.deleteAllBySuperheroId(id);
@@ -149,6 +163,8 @@ public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesS
     }
 
     @Override
+    @Caching(evict = { @CacheEvict(value = "hero", allEntries = true), @CacheEvict(value = "heroes", allEntries = true),
+            @CacheEvict(value = "allheroes", allEntries = true), @CacheEvict(value = "powers", allEntries = true) })
     public void deleteAllSuperHeros() {
         heroSuperPowerRepository.deleteAll();
         heroSuperPowerRepository.flush();
