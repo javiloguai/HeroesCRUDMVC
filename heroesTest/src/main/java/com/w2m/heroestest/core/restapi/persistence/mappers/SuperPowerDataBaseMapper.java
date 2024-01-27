@@ -1,8 +1,8 @@
-package com.w2m.heroestest.core.model.persistence.mappers;
+package com.w2m.heroestest.core.restapi.persistence.mappers;
 
 import com.w2m.heroestest.core.constants.MapperConstants;
 import com.w2m.heroestest.core.model.domain.SuperPowerDomain;
-import com.w2m.heroestest.core.model.persistence.entities.HeroSuperPowerEntity;
+import com.w2m.heroestest.core.restapi.persistence.entities.HeroSuperPowerEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

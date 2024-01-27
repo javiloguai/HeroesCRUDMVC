@@ -7,7 +7,7 @@ import com.w2m.heroestest.core.model.enums.SuperPower;
 import com.w2m.heroestest.core.restapi.server.mappers.SuperHeroRequestMapper;
 import com.w2m.heroestest.core.restapi.server.mappers.SuperHeroResponseMapper;
 import com.w2m.heroestest.core.restapi.server.requests.HeroRequest;
-import com.w2m.heroestest.core.restapi.server.responseModels.HeroResponse;
+import com.w2m.heroestest.core.restapi.server.responses.HeroResponse;
 import com.w2m.heroestest.core.restapi.services.SuperHeroesService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;

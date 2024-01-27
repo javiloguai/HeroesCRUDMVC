@@ -1,4 +1,4 @@
-package com.w2m.heroestest.core.restapi.server.responseModels;
+package com.w2m.heroestest.core.restapi.server.responses;
 
 import com.w2m.heroestest.core.model.enums.SuperPower;
 import lombok.Data;
