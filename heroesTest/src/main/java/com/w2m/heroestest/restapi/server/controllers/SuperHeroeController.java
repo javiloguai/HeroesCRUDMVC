@@ -67,7 +67,7 @@ public class SuperHeroeController extends BaseController {
     public ResponseEntity<Page<HeroResponse>> pageAllSuperHeroes(@ParameterObject final Pageable pageable) {
         LOGGER.debug("We can log whatever we need...");
 
-        Page<SuperHeroDomain> allheroes = this.superHeroesService.getAllSuperHeroes(pageable);
+        Page<SuperHeroDomain> allheroes = this.superHeroesService.pageAllSuperHeroes(pageable);
         LOGGER.debug(
                 "If it's necessary to pick apart the business objects from the response objects we could deal with a mapper here. I'll will not repeat this or implement on the other endpoints, is just an example.");
         if (allheroes.isEmpty()) {
@@ -112,7 +112,7 @@ public class SuperHeroeController extends BaseController {
     public ResponseEntity<Page<HeroResponse>> pageAllSuperHeroesByName(@RequestParam(required = true) String name,
             @ParameterObject final Pageable pageable) {
         LOGGER.debug("We can log whatever we need...");
-        Page<SuperHeroDomain> allheroes = this.superHeroesService.getAllSuperHeroesByName(name, pageable);
+        Page<SuperHeroDomain> allheroes = this.superHeroesService.pageAllSuperHeroesByName(name, pageable);
         LOGGER.debug(
                 "If it's necessary to pick apart the business objects from the response objects we could deal with a mapper here. I'll will not repeat this or implement on the other endpoints, is just an example.");
         if (allheroes.isEmpty()) {

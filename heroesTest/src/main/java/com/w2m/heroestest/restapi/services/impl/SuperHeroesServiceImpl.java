@@ -4,6 +4,7 @@ import com.w2m.heroestest.config.exception.AlreadyExistException;
 import com.w2m.heroestest.config.exception.BusinessRuleViolatedException;
 import com.w2m.heroestest.config.exception.NotFoundException;
 import com.w2m.heroestest.model.domain.SuperHeroDomain;
+import com.w2m.heroestest.model.domain.SuperPowerDomain;
 import com.w2m.heroestest.model.dto.SuperHeroDTO;
 import com.w2m.heroestest.model.enums.SuperPower;
 import com.w2m.heroestest.restapi.persistence.entities.HeroSuperPowerEntity;
@@ -15,8 +16,6 @@ import com.w2m.heroestest.restapi.services.BasicService;
 import com.w2m.heroestest.restapi.services.SuperHeroesService;
 import com.w2m.heroestest.restapi.services.mappers.SuperHeroDomainMapper;
 import com.w2m.heroestest.utils.ParamUtils;
-import jakarta.validation.constraints.NotNull;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -29,6 +28,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author jruizh
@@ -38,6 +38,14 @@ import java.util.List;
 @Validated
 @Transactional
 public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesService {
+
+    private final static String ID_MANDATORY="Id field is Mandatory";
+    private final static String NAME_EMPTY="Hero name cannot be empty";
+    private final static String POWERS_EMPTY="Hero superpowers list cannot be empty";
+    private final static String PAGE_MANDATORY="page info is Mandatory";
+    private final static String NAME_MANDATORY="name field is Mandatory";
+    private final static String POWER_MANDATORY="power field is Mandatory";
+    private final static String HERO_MANDATORY="The hero Object is Mandatory";
 
     @Autowired
     private SuperHeroRepository superHeroRepository;
@@ -54,7 +62,10 @@ public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesS
 
     @Override
     @Cacheable(cacheNames = "pagedallheroes")
-    public Page<SuperHeroDomain> getAllSuperHeroes(Pageable pageable) {
+    public Page<SuperHeroDomain> pageAllSuperHeroes( final Pageable pageable) {
+        if (Objects.isNull(pageable)) {
+            throw new BusinessRuleViolatedException(PAGE_MANDATORY);
+        }
         Page<SuperHeroEntity> pagedResults = superHeroRepository.findAll(pageable);
 
         return SuperHeroDataBaseMapper.INSTANCE.entityToDomain(pagedResults);
@@ -62,9 +73,9 @@ public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesS
 
     @Override
     @Cacheable(cacheNames = "heroes", key = "#name")
-    public List<SuperHeroDomain> getAllSuperHeroesByName(@NotNull final String name) {
+    public List<SuperHeroDomain> getAllSuperHeroesByName( final String name) {
         if (ParamUtils.paramNotInformed(name)) {
-            throw new BusinessRuleViolatedException("name field is Mandatory");
+            throw new BusinessRuleViolatedException(NAME_MANDATORY);
         }
 
         return SuperHeroDataBaseMapper.INSTANCE.entityToDomain(superHeroRepository.findByNameContaining(name));
@@ -72,9 +83,12 @@ public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesS
 
     @Override
     @Cacheable(cacheNames = "pagedheroes", key = "#name")
-    public Page<SuperHeroDomain> getAllSuperHeroesByName(@NotNull String name, Pageable pageable) {
+    public Page<SuperHeroDomain> pageAllSuperHeroesByName( final String name,  final Pageable pageable) {
         if (ParamUtils.paramNotInformed(name)) {
-            throw new BusinessRuleViolatedException("name field is Mandatory");
+            throw new BusinessRuleViolatedException(NAME_MANDATORY);
+        }
+        if (Objects.isNull(pageable)) {
+            throw new BusinessRuleViolatedException(PAGE_MANDATORY);
         }
 
         return SuperHeroDataBaseMapper.INSTANCE.entityToDomain(
@@ -83,9 +97,9 @@ public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesS
 
     @Override
     @Cacheable(cacheNames = "powers", key = "#power")
-    public List<SuperHeroDomain> getAllSuperHeroesBySuperPower(@NotNull final SuperPower power) {
+    public List<SuperHeroDomain> getAllSuperHeroesBySuperPower( final SuperPower power) {
         if (power == null) {
-            throw new BusinessRuleViolatedException("power field is Mandatory");
+            throw new BusinessRuleViolatedException(POWER_MANDATORY);
 
         }
         List<HeroSuperPowerEntity> powerList = heroSuperPowerRepository.findBySuperPower(power);
@@ -96,7 +110,10 @@ public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesS
 
     @Override
     @Cacheable(cacheNames = "hero", key = "#id")
-    public SuperHeroDomain findById(@NotNull final Long id) {
+    public SuperHeroDomain findById( final Long id) {
+        if (id == null) {
+            throw new BusinessRuleViolatedException(ID_MANDATORY);
+        }
         return SuperHeroDataBaseMapper.INSTANCE.entityToDomain(getEntityById(id));
     }
 
@@ -106,9 +123,7 @@ public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesS
             @CacheEvict(value = "pagedallheroes", allEntries = true),
             @CacheEvict(value = "powers", allEntries = true) })
     public SuperHeroDomain createSuperHero(final SuperHeroDTO superHeroDTO) {
-
-        this.checkIfHeroAlreadyExists(superHeroDTO);
-        final SuperHeroDomain heroDO = this.validateHeroData(superHeroDTO);
+        SuperHeroDomain heroDO = this.validateHeroToCreate(superHeroDTO);
 
         SuperHeroEntity heroE = SuperHeroDataBaseMapper.INSTANCE.domainToEntity(heroDO);
 
@@ -132,10 +147,9 @@ public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesS
             @CacheEvict(value = "pagedheroes", allEntries = true), @CacheEvict(value = "allheroes", allEntries = true),
             @CacheEvict(value = "pagedallheroes", allEntries = true),
             @CacheEvict(value = "powers", allEntries = true) })
-    public SuperHeroDomain updateSuperHero(@NotNull Long id, @NotNull SuperHeroDTO superHeroDTO) {
+    public SuperHeroDomain updateSuperHero(final Long id, final SuperHeroDTO superHeroDTO) {
 
-        this.checkIfHeroAlreadyExists(id, superHeroDTO);
-        final SuperHeroDomain heroDO = this.validateHeroData(superHeroDTO);
+        SuperHeroDomain heroDO = this.validateHeroToUpdate(id, superHeroDTO);
 
         SuperHeroEntity heroToUpdate = this.getEntityById(id);
         SuperHeroDataBaseMapper.INSTANCE.copyToEntity(heroDO, heroToUpdate);
@@ -161,13 +175,9 @@ public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesS
             @CacheEvict(value = "pagedheroes", allEntries = true), @CacheEvict(value = "allheroes", allEntries = true),
             @CacheEvict(value = "pagedallheroes", allEntries = true),
             @CacheEvict(value = "powers", allEntries = true) })
-    public SuperHeroDomain addSuperPower(@NotNull Long id, @NotNull SuperPower power) {
-        if (id == null) {
-            throw new BusinessRuleViolatedException("Id field is Mandatory");
-        }
-        if (power == null) {
-            throw new BusinessRuleViolatedException("power field is Mandatory");
-        }
+    public SuperHeroDomain addSuperPower(final Long id, final SuperPower power) {
+
+        validateAddPower(id,power);
 
         HeroSuperPowerEntity powerToAdd = HeroSuperPowerEntity.builder().superheroId(id).superPower(power).build();
 
@@ -176,11 +186,34 @@ public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesS
         return SuperHeroDataBaseMapper.INSTANCE.entityToDomain(this.getEntityById(id));
     }
 
+    private void validateAddPower(final Long id,final  SuperPower power){
+
+        if (id == null) {
+            throw new BusinessRuleViolatedException(ID_MANDATORY);
+        }
+        if (power == null) {
+            throw new BusinessRuleViolatedException(POWER_MANDATORY);
+        }
+
+        SuperHeroDomain hiro = this.findById(id);
+
+        List<SuperPowerDomain> powerList = hiro.getSuperPower();
+        List<SuperPower> hiroPowers = powerList.stream().map(p -> p.getSuperPower()).distinct().toList();
+
+        if(!hiroPowers.isEmpty() && hiroPowers.contains(power)){
+            throw new AlreadyExistException("This Hero already owns that superpower: " + power.toString());
+        }
+    }
+
     @Override
     @Caching(evict = { @CacheEvict(value = "hero", allEntries = true), @CacheEvict(value = "heroes", allEntries = true),
-            @CacheEvict(value = "allheroes", allEntries = true), @CacheEvict(value = "powers", allEntries = true) })
-    public void deleteSuperHeroById(long id) {
-
+            @CacheEvict(value = "pagedheroes", allEntries = true), @CacheEvict(value = "allheroes", allEntries = true),
+            @CacheEvict(value = "pagedallheroes", allEntries = true),
+            @CacheEvict(value = "powers", allEntries = true) })
+    public void deleteSuperHeroById(final Long id) {
+        if (id == null) {
+            throw new BusinessRuleViolatedException(ID_MANDATORY);
+        }
         heroSuperPowerRepository.deleteAllBySuperheroId(id);
         heroSuperPowerRepository.flush();
 
@@ -191,7 +224,9 @@ public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesS
 
     @Override
     @Caching(evict = { @CacheEvict(value = "hero", allEntries = true), @CacheEvict(value = "heroes", allEntries = true),
-            @CacheEvict(value = "allheroes", allEntries = true), @CacheEvict(value = "powers", allEntries = true) })
+            @CacheEvict(value = "pagedheroes", allEntries = true), @CacheEvict(value = "allheroes", allEntries = true),
+            @CacheEvict(value = "pagedallheroes", allEntries = true),
+            @CacheEvict(value = "powers", allEntries = true) })
     public void deleteAllSuperHeros() {
         heroSuperPowerRepository.deleteAll();
         heroSuperPowerRepository.flush();
@@ -200,38 +235,55 @@ public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesS
 
     }
 
-    private SuperHeroEntity getEntityById(@NotNull final Long id) {
+    private SuperHeroEntity getEntityById(final Long id) {
         return superHeroRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Not found hero with id %s", id)));
     }
 
-    private void checkIfHeroAlreadyExists(final SuperHeroDTO superHeroDTO) {
-        superHeroRepository.findFirstByNameIgnoreCase(superHeroDTO.getName())
+    private SuperHeroDomain validateHeroToCreate(final SuperHeroDTO superHeroDTO){
+        this.validateHeroData(superHeroDTO);
+        this.checkIfHeroAlreadyExists(superHeroDTO.getName());
+        return SuperHeroDomainMapper.INSTANCE.dtoToDomain(superHeroDTO);
+    }
+
+    private SuperHeroDomain validateHeroToUpdate(final Long id, final SuperHeroDTO superHeroDTO){
+        if (id == null) {
+            throw new BusinessRuleViolatedException(ID_MANDATORY);
+        }
+        this.validateHeroData(superHeroDTO);
+        this.checkIfHeroAlreadyExists(id, superHeroDTO.getName());
+        return SuperHeroDomainMapper.INSTANCE.dtoToDomain(superHeroDTO);
+    }
+
+    private void validateHeroData(final SuperHeroDTO superHeroDTO) {
+        if (superHeroDTO == null) {
+            throw new BusinessRuleViolatedException(HERO_MANDATORY);
+        }
+        if (ParamUtils.paramNotInformed(superHeroDTO.getName())) {
+            throw new BusinessRuleViolatedException(NAME_EMPTY);
+        }
+        if (ParamUtils.paramNotInformed(superHeroDTO.getSuperPower())) {
+            throw new BusinessRuleViolatedException(POWERS_EMPTY);
+        }
+    }
+
+    private void checkIfHeroAlreadyExists(final String heroName) {
+        superHeroRepository.findFirstByNameIgnoreCase(heroName)
                 .ifPresent(this::throwAlreadyExistException);
     }
 
-    private void checkIfHeroAlreadyExists(@NotNull final Long id, final SuperHeroDTO superHeroDTO) {
-        superHeroRepository.findFirstByNameIgnoreCase(superHeroDTO.getName()).ifPresent(h -> {
+    private void checkIfHeroAlreadyExists(final Long id, final String heroName) {
+        superHeroRepository.findFirstByNameIgnoreCase(heroName).ifPresent(h -> {
             if (h.getId() != id.longValue()) {
                 throwAlreadyExistException(h);
             }
         });
     }
 
-    private void throwAlreadyExistException(SuperHeroEntity superHeroEntity) {
+    private void throwAlreadyExistException(final SuperHeroEntity superHeroEntity) {
         throw new AlreadyExistException("This Hero already exists: " + superHeroEntity.toString());
     }
 
-    private SuperHeroDomain validateHeroData(final SuperHeroDTO superHeroDTO) {
 
-        if (ParamUtils.paramNotInformed(superHeroDTO.getName())) {
-            throw new BusinessRuleViolatedException("Hero name cannot be empty");
-        }
-        if (ParamUtils.paramNotInformed(superHeroDTO.getSuperPower())) {
-            throw new BusinessRuleViolatedException("Hero superpowers list cannot be empty");
-        }
-
-        return SuperHeroDomainMapper.INSTANCE.dtoToDomain(superHeroDTO);
-    }
 
 }
