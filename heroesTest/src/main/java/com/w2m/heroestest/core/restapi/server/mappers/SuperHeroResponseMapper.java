@@ -4,7 +4,7 @@ import com.w2m.heroestest.core.constants.MapperConstants;
 import com.w2m.heroestest.core.model.domain.SuperHeroDomain;
 import com.w2m.heroestest.core.model.domain.SuperPowerDomain;
 import com.w2m.heroestest.core.model.enums.SuperPower;
-import com.w2m.heroestest.core.restapi.server.responseModels.HeroResponse;
+import com.w2m.heroestest.core.restapi.server.responses.HeroResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
