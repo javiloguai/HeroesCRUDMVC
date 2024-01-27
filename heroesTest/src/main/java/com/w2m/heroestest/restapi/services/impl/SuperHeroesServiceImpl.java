@@ -39,13 +39,13 @@ import java.util.Objects;
 @Transactional
 public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesService {
 
-    private final static String ID_MANDATORY="Id field is Mandatory";
-    private final static String NAME_EMPTY="Hero name cannot be empty";
-    private final static String POWERS_EMPTY="Hero superpowers list cannot be empty";
-    private final static String PAGE_MANDATORY="page info is Mandatory";
-    private final static String NAME_MANDATORY="name field is Mandatory";
-    private final static String POWER_MANDATORY="power field is Mandatory";
-    private final static String HERO_MANDATORY="The hero Object is Mandatory";
+    private static final String ID_MANDATORY="Id field is Mandatory";
+    private static final String NAME_EMPTY="Hero name cannot be empty";
+    private static final String POWERS_EMPTY="Hero superpowers list cannot be empty";
+    private static final String PAGE_MANDATORY="page info is Mandatory";
+    private static final String NAME_MANDATORY="name field is Mandatory";
+    private static final String POWER_MANDATORY="power field is Mandatory";
+    private static final String HERO_MANDATORY="The hero Object is Mandatory";
 
     @Autowired
     private SuperHeroRepository superHeroRepository;
@@ -211,9 +211,9 @@ public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesS
             @CacheEvict(value = "pagedallheroes", allEntries = true),
             @CacheEvict(value = "powers", allEntries = true) })
     public void deleteSuperHeroById(final Long id) {
-        if (id == null) {
-            throw new BusinessRuleViolatedException(ID_MANDATORY);
-        }
+
+        this.findById(id);
+
         heroSuperPowerRepository.deleteAllBySuperheroId(id);
         heroSuperPowerRepository.flush();
 
@@ -228,10 +228,14 @@ public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesS
             @CacheEvict(value = "pagedallheroes", allEntries = true),
             @CacheEvict(value = "powers", allEntries = true) })
     public void deleteAllSuperHeros() {
-        heroSuperPowerRepository.deleteAll();
-        heroSuperPowerRepository.flush();
-        superHeroRepository.deleteAll();
-        superHeroRepository.flush();
+        if(!heroSuperPowerRepository.findAll().isEmpty()){
+            heroSuperPowerRepository.deleteAll();
+            heroSuperPowerRepository.flush();
+        }
+        if(!superHeroRepository.findAll().isEmpty()){
+           superHeroRepository.deleteAll();
+           superHeroRepository.flush();
+        }
 
     }
 

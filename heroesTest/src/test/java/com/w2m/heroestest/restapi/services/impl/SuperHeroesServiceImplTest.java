@@ -12,10 +12,7 @@ import com.w2m.heroestest.restapi.persistence.entities.SuperHeroEntity;
 import com.w2m.heroestest.restapi.persistence.mappers.SuperHeroDataBaseMapper;
 import com.w2m.heroestest.restapi.persistence.repositories.HeroSuperPowerRepository;
 import com.w2m.heroestest.restapi.persistence.repositories.SuperHeroRepository;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -44,13 +41,13 @@ import static org.mockito.ArgumentMatchers.any;
 //@WithMockUser(username="admin",roles={"USER","ADMIN"})
 public class SuperHeroesServiceImplTest {
 
-	private final static String ID_MANDATORY="Id field is Mandatory";
-	private final static String NAME_EMPTY="Hero name cannot be empty";
-	private final static String POWERS_EMPTY="Hero superpowers list cannot be empty";
-	private final static String PAGE_MANDATORY="page info is Mandatory";
-	private final static String NAME_MANDATORY="name field is Mandatory";
-	private final static String POWER_MANDATORY="power field is Mandatory";
-	private final static String HERO_MANDATORY="The hero Object is Mandatory";
+	private static final String ID_MANDATORY="Id field is Mandatory";
+	private static final String NAME_EMPTY="Hero name cannot be empty";
+	private static final String POWERS_EMPTY="Hero superpowers list cannot be empty";
+	private static final String PAGE_MANDATORY="page info is Mandatory";
+	private static final String NAME_MANDATORY="name field is Mandatory";
+	private static final String POWER_MANDATORY="power field is Mandatory";
+	private static final String HERO_MANDATORY="The hero Object is Mandatory";
 
 	@InjectMocks
 	private SuperHeroesServiceImpl superHeroesService;
@@ -357,8 +354,8 @@ public class SuperHeroesServiceImplTest {
 			Assertions.assertEquals(hlist.size(), listResultDomain.size());
 			Assertions.assertEquals(hlist.get(0).getId(), listResultDomain.get(0).getId());
 			Assertions.assertEquals(hlist.get(1).getId(), listResultDomain.get(1).getId());
-			Assertions.assertTrue(listResultDomain.get(0).getSuperPower().get(0).getSuperPower().equals(power));
-			Assertions.assertTrue(listResultDomain.get(1).getSuperPower().get(0).getSuperPower().equals(power));
+			Assertions.assertEquals(listResultDomain.get(0).getSuperPower().get(0).getSuperPower(),power);
+			Assertions.assertEquals(listResultDomain.get(1).getSuperPower().get(0).getSuperPower(),power);
 		}
 
 
@@ -627,71 +624,80 @@ public class SuperHeroesServiceImplTest {
 
 	}
 
+	/**
+	 * deleteSuperHeroById test cases
+	 */
+	@Nested
+	@DisplayName("deleteSuperHeroById test cases")
+	class deleteSuperHeroByIdTest {
+		@Test
+		@DisplayName("Throws exception when hero ID is null")
+		void givenNullId_thenThrowsException() {
+			final BusinessRuleViolatedException ex = Assertions.assertThrows(BusinessRuleViolatedException.class,
+					() -> superHeroesService.deleteSuperHeroById(null));
+			Assertions.assertEquals(ID_MANDATORY, ex.getMessage());
+		}
+		@Test
+		@DisplayName("Throws exception when hero ID does not exist")
+		void givenNonExistingId_thenThrowsException() {
 
-//
-//	@Test
-//    public void testAddCustomerExceptionThrown() {
-//        Mockito.doThrow(new RuntimeException("Failed to save customer")).when(customerRepository).save(Mockito.any());
-//        CustomerDTO customerDTO = CustomerDTO.builder()
-//                .firstName("Rajesh")
-//                .surname("Kawali")
-//                .mobileNumber(1234567890L)
-//                .smoothiePreference("Strawberry")
-//                .build();
-//        CustomerDTO customerDTOResponse = superHeroesService.addCustomer(customerDTO);
-//        Assertions.assertEquals(CustomerDTO.builder().build(), customerDTOResponse);
-//    }
-//	@Test
-//	public void testDeleteCustomerExistingIdReturnsDeleteMessage() {
-//		Mockito.when(customerRepository.findById(1L)).thenReturn(Optional.of(Customer.builder().build()));
-//		String response = superHeroesService.deleteCustomer(1L);
-//		Assertions.assertEquals(CustomerConstants.DELETE_MESSAGE, response);
-//	}
-//
-//	@Test
-//	public void testDeleteCustomerExceptionThrown() {
-//		Mockito.doThrow(new RuntimeException()).when(customerRepository).deleteById(Mockito.anyLong());
-//		//Mockito.doThrow(new RuntimeException()).when(customerService).customerById(Mockito.anyLong());;
-//		//Mockito.when(customerService.customerById(1L)).thenThrow(new RuntimeException("exception"));
-//		//Mockito.when(customerRepository.findById(Mockito.anyLong())).thenReturn(Optional.empty());
-//		String response = superHeroesService.deleteCustomer(1L);
-//		Assertions.assertNull(response);
-//	}
-//
-//	@Test
-//	public void testUpdateCustomerExistingIdReturnsUpdatedCustomerDetails() {
-//		Customer customerToSave = Customer.builder()
-//				.id(1L)
-//				.firstName("Neil")
-//				.surname("Jenner")
-//				.mobileNumber(1234567890L)
-//				.smoothiePreference("Strawberry").build();
-//		CustomerDTO customerToUpdate = CustomerDTO.builder()
-//				.id(1L)
-//				.firstName("Neil")
-//				.surname("Jenner")
-//				.mobileNumber(1234567890L)
-//				.smoothiePreference("Strawberry").build();
-//		CustomerDTO customerDetails = CustomerDTO.builder()
-//				.id(1L)
-//				.firstName("Neil")
-//				.surname("Jenner")
-//				.mobileNumber(1234567890L)
-//				.smoothiePreference("Strawberry").build();
-//		CustomerDTO updatedCustomer = CustomerDTO.builder()
-//				.id(1L)
-//				.firstName("Neil")
-//				.surname("Jenner")
-//				.mobileNumber(1234567890L)
-//				.smoothiePreference("Strawberry").build();
-//		Mockito.when(customerRepository.findById(1L)).thenReturn(Optional.of(Util.dtoToEntity(customerDetails)));
-//	    Mockito.when(customerRepository.save(Mockito.any())).thenReturn(customerToSave);
-//		CustomerDTO response = superHeroesService.updateCustomer(1L, customerToUpdate);
-//		Assertions.assertEquals(updatedCustomer.getId(), response.getId());
-//		Assertions.assertEquals(updatedCustomer.getFirstName(), response.getFirstName());
-//		Assertions.assertEquals(updatedCustomer.getSurname(), response.getSurname());
-//		Assertions.assertEquals(updatedCustomer.getMobileNumber(), response.getMobileNumber());
-//		Assertions.assertEquals(updatedCustomer.getSmoothiePreference(), response.getSmoothiePreference());
-//	}
+			Mockito.when(superHeroRepository.findById(SuperHeroFactory.HERO_ID)).thenReturn(Optional.empty());
+
+			final NotFoundException ex = Assertions.assertThrows(NotFoundException.class,
+					() -> superHeroesService.deleteSuperHeroById(SuperHeroFactory.HERO_ID));
+			Assertions.assertEquals("Not found hero with id "+SuperHeroFactory.HERO_ID, ex.getMessage());
+		}
+		@Test
+		void givenExistingHero_thenDeletesIt() {
+
+			final SuperHeroEntity heroToDelete = SuperHeroFactory.getEntity();
+
+			Mockito.when(superHeroRepository.findById(SuperHeroFactory.HERO_ID)).thenReturn(Optional.of(heroToDelete));
+
+			superHeroesService.deleteSuperHeroById(SuperHeroFactory.HERO_ID);
+
+			Mockito.verify(heroSuperPowerRepository, Mockito.times(1)).deleteAllBySuperheroId(SuperHeroFactory.HERO_ID);
+			Mockito.verify(superHeroRepository, Mockito.times(1)).deleteById(SuperHeroFactory.HERO_ID);
+
+		}
+
+	}
+
+	/**
+	 * deleteAllSuperHeros test cases
+	 */
+	@Nested
+	@DisplayName("deleteAllSuperHeros test cases")
+	class deleteAllSuperHeros {
+		@Test
+		@DisplayName("Does nothing when no existing registers")
+		void givenNonExistingRegisters_thenDoNothing() {
+
+			Mockito.when(heroSuperPowerRepository.findAll()).thenReturn(List.of());
+			Mockito.when(superHeroRepository.findAll()).thenReturn(List.of());
+
+			superHeroesService.deleteAllSuperHeros();
+
+			Mockito.verify(heroSuperPowerRepository, Mockito.times(0)).deleteAll();
+			Mockito.verify(superHeroRepository, Mockito.times(0)).deleteAll();
+		}
+		@Test
+		@DisplayName("Deletes all when existing registers")
+		void givenExistingRegisters_thenDeletesAll() {
+
+			final SuperHeroEntity heroToDelete = SuperHeroFactory.getEntity();
+			final HeroSuperPowerEntity powerToDelete = SuperHeroFactory.getPowerEntity(SuperHeroFactory.HERO_ID);
+
+			Mockito.when(heroSuperPowerRepository.findAll()).thenReturn(List.of(powerToDelete));
+			Mockito.when(superHeroRepository.findAll()).thenReturn(List.of(heroToDelete));
+
+			superHeroesService.deleteAllSuperHeros();
+
+			Mockito.verify(heroSuperPowerRepository, Mockito.times(1)).deleteAll();
+			Mockito.verify(superHeroRepository, Mockito.times(1)).deleteAll();
+
+		}
+
+	}
 
 }
