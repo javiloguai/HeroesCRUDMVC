@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 /**
  * @author jruizh
@@ -15,8 +16,7 @@ import org.springframework.cache.annotation.EnableCaching;
 @SpringBootApplication
 @EnableCaching
 //@EnableScheduling
-//@EnableJpaRepositories
-@OpenAPIDefinition(info = @Info(title = "Superheroes SpringBoot 3 API", version = "1.0", description = "This is an amazing API to define and classify superheroes", termsOfService = "http://swagger.io/terms/", license = @License(name = "Apache 2.0 Licence for super heroes", url = "http://springdoc.org/")))
+@EnableJpaRepositories
 public class HeroesTestApplication {
 
     private static final Logger LOGGER = LogManager.getLogger(HeroesTestApplication.class);

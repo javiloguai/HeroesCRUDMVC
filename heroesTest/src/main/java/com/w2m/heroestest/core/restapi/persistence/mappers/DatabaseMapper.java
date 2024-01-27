@@ -1,4 +1,4 @@
-package com.w2m.heroestest.core.model.persistence.mappers;
+package com.w2m.heroestest.core.restapi.persistence.mappers;
 
 import org.mapstruct.BeanMapping;
 import org.mapstruct.MappingTarget;
