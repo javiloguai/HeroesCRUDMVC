@@ -46,14 +46,12 @@ This application implemented using:
 > > user: admin
 >>
 > > password :admin
->>
-> > role :ADMIN
+
 >
 > > user: user
 >>
 > > password :user
->>
-> > role :USER
+
 > 
 >> Due to a lack of time ROLE is not used.  
 
