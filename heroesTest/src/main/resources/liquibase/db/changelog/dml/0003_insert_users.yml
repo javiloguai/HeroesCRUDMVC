@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-data-AUTH_USER-v1.0.0
+      author: tmo
+      comment: "Initialize AUTH_USER"
+      changes:
+        - loadData:
+            columns:
+              - column:
+                  header: ID
+                  name: ID
+                  type: NUMERIC
+              - column:
+                  header: USERNAME
+                  name: USERNAME
+                  type: STRING
+              - column:
+                  header: PASSWORD
+                  name: PASSWORD
+                  type: STRING
+              - column:
+                  header: ROLE
+                  name: ROLE
+                  type: STRING
+            commentLineStartsWith: //
+            encoding: UTF-8
+            file: 0003_insert_users.csv
+            quotchar: ''''
+            relativeToChangelogFile: true
+            separator: ;
+            tableName: AUTH_USER
+            usePreparedStatements: true

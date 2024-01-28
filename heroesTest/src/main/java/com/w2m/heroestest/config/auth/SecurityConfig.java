@@ -35,7 +35,8 @@ public class SecurityConfig {
     @Bean
     @Order(1)
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.csrf(csrf -> csrf.ignoringRequestMatchers("/h2-ui/**").disable())
+        http.csrf(csrf -> csrf.ignoringRequestMatchers("/h2-ui/**").disable())
+                .headers((header)->header.frameOptions((fo)->fo.sameOrigin()))
                 .authorizeHttpRequests(authRequest -> authRequest
                         .requestMatchers(RequestMappings.AUTH + "/**").permitAll()
                         .requestMatchers(toH2Console()).permitAll()
@@ -62,7 +63,10 @@ public class SecurityConfig {
                         .anyRequest().authenticated()).sessionManagement(
                         sessionManager -> sessionManager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authProvider)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class).build();
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+
 
     }
 
