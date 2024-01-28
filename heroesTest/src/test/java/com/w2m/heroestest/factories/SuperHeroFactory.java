@@ -7,6 +7,7 @@ import com.w2m.heroestest.model.dto.SuperPowerDTO;
 import com.w2m.heroestest.model.enums.SuperPower;
 import com.w2m.heroestest.restapi.persistence.entities.HeroSuperPowerEntity;
 import com.w2m.heroestest.restapi.persistence.entities.SuperHeroEntity;
+import com.w2m.heroestest.restapi.server.requests.HeroRequest;
 
 import java.util.List;
 
@@ -19,6 +20,8 @@ public final class SuperHeroFactory {
 
     public static Long POWER_ID = 288L;
 
+    public static String NAME = "SuperLopez";
+
     public static SuperHeroEntity getEntity() {
         return getEntity(HERO_ID);
     }
@@ -26,7 +29,7 @@ public final class SuperHeroFactory {
         List<HeroSuperPowerEntity> powers = getPowersEntity(heroId) ;
         SuperHeroEntity mySuperHeroEntity = SuperHeroEntity.builder()
                 .id(heroId)
-                .name("superLopez")
+                .name(NAME)
                 .description("none")
                 .superPower(powers).build();
         return mySuperHeroEntity;
@@ -49,7 +52,7 @@ public final class SuperHeroFactory {
         List<SuperPowerDTO> powers = getPowersDTO(heroId) ;
         SuperHeroDTO mySuperHeroDto = SuperHeroDTO.builder()
                 .id(heroId)
-                .name("superLopez")
+                .name(NAME)
                 .description("none")
                 .superPower(powers).build();
         return mySuperHeroDto;
@@ -75,7 +78,7 @@ public final class SuperHeroFactory {
         List<SuperPowerDomain> powers = getPowersDO(heroId) ;
         SuperHeroDomain mySuperHeroDomain = SuperHeroDomain.builder()
                 .id(heroId)
-                .name("superLopez")
+                .name(NAME)
                 .description("none")
                 .superPower(powers).build();
         return mySuperHeroDomain;
@@ -92,6 +95,19 @@ public final class SuperHeroFactory {
     public static SuperPowerDomain getPowerDO(Long heroId,Long powerId) {
         return SuperPowerDomain.builder().id(powerId).superheroId(heroId).superPower(SuperPower.TELEKINESIS).build();
     }
+    public static HeroRequest getRequest() {
+        List<SuperPower> powers = getPowers() ;
+        HeroRequest mySuperHeroDomain = HeroRequest.builder()
+                .name(NAME)
+                .description("none")
+                .superPower(powers).build();
+        return mySuperHeroDomain;
+    }
+
+    public static List<SuperPower> getPowers() {
+        return List.of(SuperPower.TELEKINESIS);
+    }
+
 
 
 }

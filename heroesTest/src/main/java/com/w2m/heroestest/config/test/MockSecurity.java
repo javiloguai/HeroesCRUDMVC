@@ -1,4 +1,4 @@
-package com.w2m.heroestest.utils;
+package com.w2m.heroestest.config.test;
 
 
 

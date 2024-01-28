@@ -1,5 +1,7 @@
 package com.w2m.heroestest.model.enums;
 
+import lombok.*;
+
 public enum SuperPower {
     INVISIBILITY,
     PHASING,
