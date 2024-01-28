@@ -50,7 +50,7 @@ public class BaseJacksonMapper implements JacksonMapper {
         final StringBuilder jsonConfig = new StringBuilder();
 
         try {
-            final ObjectMapper mapper = getJacksonMapper(/*dateFormat, dateTimeFormat*/);
+            final ObjectMapper mapper = getJacksonMapper();
             mapper.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
             final ObjectWriter writer = mapper.writer().withDefaultPrettyPrinter();
             jsonConfig.append(writer.writeValueAsString(abstractConfigDto));
@@ -148,13 +148,13 @@ public class BaseJacksonMapper implements JacksonMapper {
      */
     @Override
     public ObjectMapper getMapper() {
-        return this.getJacksonMapper(/*this.dateFormat, this.dateTimeFormat*/);
+        return this.getJacksonMapper();
     }
 
     /**
      * Gets the mapper. @return the mapper
      */
-    public ObjectMapper getJacksonMapper(/*final String defaultDateFormat, final String defaultDateTimeFormat*/) {
+    public ObjectMapper getJacksonMapper() {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         mapper.registerModule(new JavaTimeModule());

@@ -3,7 +3,7 @@ package com.w2m.heroestest.config.test;
 
 
 import com.w2m.heroestest.model.enums.Role;
-import com.w2m.heroestest.restapi.persistence.entities.User;
+import com.w2m.heroestest.restapi.persistence.entities.AuthUser;
 
 
 /**
@@ -26,11 +26,11 @@ public final class MockSecurity {
      *
      * @return the user
      */
-    public static User getUser(Role role) {
+    public static AuthUser getUser(Role role) {
 
 
 
-        return User.builder().id(1).email("fooname@fooname.com").firstname("fooname").role(role).password("fooname").build();
+        return AuthUser.builder().id(1).username("fooname").role(role).password("fooname").build();
     }
 
 
