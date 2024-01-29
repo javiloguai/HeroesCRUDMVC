@@ -1,0 +1,13 @@
+version: '3.5'
+
+services:
+  heroesTest:
+    container_name: superheroes_container
+    image: superheroes_api
+    restart: always
+    ports:
+      - "8080:8080"
+
+
+
+

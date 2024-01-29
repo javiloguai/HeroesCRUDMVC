@@ -20,6 +20,7 @@ This application implemented using:
 #### cache
 #### liquibase
 #### TDD
+#### Docker containers
 
 ## Java version
 > java version used to compile is Temurin JDK 21+35
