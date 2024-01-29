@@ -28,7 +28,7 @@ This application implemented using:
 > IntelliJ IDEA 2023.1.2 (Community Edition)
 
 ## To start API on a docker container
-> >run mvn clean istall
+> >run mvn clean install
 > 
 > >run docker build -t superheroes_api .        
 > 
