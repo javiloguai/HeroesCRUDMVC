@@ -27,12 +27,18 @@ This application implemented using:
 ## IDE
 > IntelliJ IDEA 2023.1.2 (Community Edition)
 
+## To start API on a docker container
+> >run mvn clean install
+> 
+> >run docker build -t superheroes_api .        
+> 
+> >docker-compose up --build 
+
 #### Testing
 > JUnit tests are performed on 'mvn clean install'
 
 > Integration Test should be performed on 'mvn clean install' or 'mvn verify' but I am just able to execute it via IDE menú context. PATH to Integration Test is in 'heroesTest.src.test.java.com.w2m.heroestest.integrationtests'
 
-#### Integration Test
  
 
 ## To access H2 DB console
