@@ -2,17 +2,11 @@ package com.w2m.heroestest.config.jackson;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * The Interface JacksonMapper. Defines the infrastructure methods to manage the JSON objects
  */
 public interface JacksonMapper {
-
-    /**
-     * Gets the mapper. @return the mapper
-     */
-    ObjectMapper getMapper();
 
     /**
      * Gets the json from object.
@@ -50,6 +44,6 @@ public interface JacksonMapper {
      * @param clazz    the clazz
      * @return the object from resource file
      */
-    public <T> T getObjectFromResourceFile(final String fileName, final Class<T> clazz);
+    <T> T getObjectFromResourceFile(final String fileName, final Class<T> clazz);
 
 }

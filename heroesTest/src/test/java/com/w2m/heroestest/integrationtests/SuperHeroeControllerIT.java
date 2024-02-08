@@ -1,12 +1,13 @@
 package com.w2m.heroestest.integrationtests;
 
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.w2m.heroestest.config.exception.NotFoundException;
 import com.w2m.heroestest.config.jackson.DefaultApplicationJsonMapper;
 import com.w2m.heroestest.config.test.TestControllerConfig;
 import com.w2m.heroestest.constants.RequestMappings;
 import com.w2m.heroestest.factories.SuperHeroFactory;
 import com.w2m.heroestest.model.domain.SuperHeroDomain;
+import com.w2m.heroestest.restapi.server.assemblers.HeroPageModelAssembler;
 import com.w2m.heroestest.restapi.server.controllers.SuperHeroeController;
 import com.w2m.heroestest.restapi.server.requests.HeroRequest;
 import com.w2m.heroestest.restapi.services.SuperHeroesService;
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
@@ -47,24 +49,27 @@ import static org.mockito.ArgumentMatchers.any;
 @EnableSpringDataWebSupport
 class SuperHeroeControllerIT {
 
-
-    private final static String DATE_FORMAT = "dd-MM-yyyy";
-
-    private final static String DATE_TIME_FORMAT = "dd-MM-yyyy HH:mm:ss";
+    @MockBean
+    SuperHeroesService superHeroesService;
 
     @Autowired
     private MockMvc mockMvc;
 
     private DefaultApplicationJsonMapper defaultApplicationJsonMapper;
 
+    @MockBean
+    private PagedResourcesAssembler<SuperHeroDomain> pagedResourcesAssembler;
 
     @MockBean
-    SuperHeroesService superHeroesService;
+    private HeroPageModelAssembler heroPageModelAssembler;
+
+    @Autowired
+    private ObjectMapper getMapper;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        defaultApplicationJsonMapper = new DefaultApplicationJsonMapper(DATE_FORMAT, DATE_TIME_FORMAT);
+        defaultApplicationJsonMapper = new DefaultApplicationJsonMapper(getMapper);
     }
 
     /**
@@ -74,15 +79,13 @@ class SuperHeroeControllerIT {
     class FindByIdTest {
 
         @Test
-        //@WithMockUser(username="admin",roles={"USER","ADMIN"})
+            //@WithMockUser(username="admin",roles={"USER","ADMIN"})
         void givenNonExistingHero_ThenReturnNotFound() throws Exception {
 
-           // Mockito.when(superHeroesService.findById(SuperHeroFactory.HERO_ID)).thenReturn(Optional.empty());
-            Mockito.when(superHeroesService.findById(Mockito.any()))
-                    .thenThrow(new NotFoundException("Error"));
+            // Mockito.when(superHeroesService.findById(SuperHeroFactory.HERO_ID)).thenReturn(Optional.empty());
+            Mockito.when(superHeroesService.findById(Mockito.any())).thenThrow(new NotFoundException("Error"));
 
-
-            final String requestURL = RequestMappings.API + RequestMappings.SUPERHEROES+"/"+ SuperHeroFactory.HERO_ID;
+            final String requestURL = RequestMappings.API + RequestMappings.SUPERHEROES + "/" + SuperHeroFactory.HERO_ID;
 
             // @formatter:off
             mockMvc.perform(MockMvcRequestBuilders.get(requestURL)
@@ -99,11 +102,12 @@ class SuperHeroeControllerIT {
         @Test
         void givenExistingHero_ThenReturnIt() throws Exception {
 
-            final SuperHeroDomain domainToResponse = SuperHeroDomain.builder().name(SuperHeroFactory.NAME).description(SuperHeroFactory.NAME).build();
+            final SuperHeroDomain domainToResponse = SuperHeroDomain.builder().name(SuperHeroFactory.NAME)
+                    .description(SuperHeroFactory.NAME).build();
 
             Mockito.when(superHeroesService.findById(ArgumentMatchers.anyLong())).thenReturn(domainToResponse);
 
-            final String requestURL = RequestMappings.API + RequestMappings.SUPERHEROES+"/"+ SuperHeroFactory.HERO_ID;
+            final String requestURL = RequestMappings.API + RequestMappings.SUPERHEROES + "/" + SuperHeroFactory.HERO_ID;
 
             // @formatter:off
             final MvcResult result =  mockMvc.perform(MockMvcRequestBuilders.get(requestURL)
@@ -115,27 +119,28 @@ class SuperHeroeControllerIT {
 
             Mockito.verify(superHeroesService, Mockito.times(1)).findById(ArgumentMatchers.anyLong());
             final String response = result.getResponse().getContentAsString();
-            final SuperHeroDomain searched = defaultApplicationJsonMapper.getObjectFromJson(response, SuperHeroDomain.class);
+            final SuperHeroDomain searched = defaultApplicationJsonMapper.getObjectFromJson(response,
+                    SuperHeroDomain.class);
 
             Assertions.assertEquals(domainToResponse.getName(), searched.getName());
             Assertions.assertEquals(domainToResponse.getDescription(), searched.getDescription());
         }
     }
 
-        @Nested
-        @DisplayName("FindAll test cases. TODO: skills demostrated on ether GET Interation Test")
-        class FindAllTest {
-            //TODO Implement integrations tests for this endpoint.
-            // It would need to be completed to have full code coverage.
-            // It is clear from the tests above that I know how to perform integration tests for GET,
-            // because of this I do not waste any more time implementing this method
-            @Test
-            @Disabled
-            //@WithMockUser(username = "admin", roles = "ADMIN")
-            void givenRequestingUserWithPermissions_ThenOperationIsAccepted() throws Exception {
-                Assertions.assertTrue(true);
-            }
+    @Nested
+    @DisplayName("FindAll test cases. TODO: skills demostrated on ether GET Interation Test")
+    class FindAllTest {
+        //TODO Implement integrations tests for this endpoint.
+        // It would need to be completed to have full code coverage.
+        // It is clear from the tests above that I know how to perform integration tests for GET,
+        // because of this I do not waste any more time implementing this method
+        @Test
+        @Disabled
+        //@WithMockUser(username = "admin", roles = "ADMIN")
+        void givenRequestingUserWithPermissions_ThenOperationIsAccepted() throws Exception {
+            Assertions.assertTrue(true);
         }
+    }
 
     @Nested
     @DisplayName("PageAll test cases.TODO: skills demostrated on ether GET Integration Test")
@@ -146,7 +151,7 @@ class SuperHeroeControllerIT {
         // because of this I do not waste any more time implementing this method
         @Test
         @Disabled
-            //@WithMockUser(username = "admin", roles = "ADMIN")
+        //@WithMockUser(username = "admin", roles = "ADMIN")
         void givenRequestingUserWithPermissions_ThenOperationIsAccepted() throws Exception {
             Assertions.assertTrue(true);
         }
@@ -173,13 +178,14 @@ class SuperHeroeControllerIT {
 
         @Test
         @DisplayName("Create new group if requesting user has permissions")
-        //@WithMockUser(username = "admin", roles = "ADMIN")
+            //@WithMockUser(username = "admin", roles = "ADMIN")
         void givenRequestingUserWithPermissions_ThenOperationIsAccepted() throws Exception {
 
             final HeroRequest request = SuperHeroFactory.getRequest();
 
             final String requestBody = defaultApplicationJsonMapper.getJsonFromObject(request);
-            final SuperHeroDomain domainToResponse = SuperHeroDomain.builder().name(request.getName()).description(request.getDescription()).build();
+            final SuperHeroDomain domainToResponse = SuperHeroDomain.builder().name(request.getName())
+                    .description(request.getDescription()).build();
 
             Mockito.when(superHeroesService.createSuperHero(ArgumentMatchers.any())).thenReturn(domainToResponse);
 
@@ -193,7 +199,8 @@ class SuperHeroeControllerIT {
 
             Mockito.verify(superHeroesService, Mockito.times(1)).createSuperHero(any());
             final String response = result.getResponse().getContentAsString();
-            final SuperHeroDomain domain = defaultApplicationJsonMapper.getObjectFromJson(response, SuperHeroDomain.class);
+            final SuperHeroDomain domain = defaultApplicationJsonMapper.getObjectFromJson(response,
+                    SuperHeroDomain.class);
 
             Assertions.assertEquals(request.getName(), domain.getName());
             Assertions.assertEquals(request.getDescription(), domain.getDescription());
@@ -209,7 +216,8 @@ class SuperHeroeControllerIT {
 
             final String requestBody = defaultApplicationJsonMapper.getJsonFromObject(request);
 
-            final SuperHeroDomain domainToResponse = SuperHeroDomain.builder().name(request.getName()).description(request.getDescription()).build();
+            final SuperHeroDomain domainToResponse = SuperHeroDomain.builder().name(request.getName())
+                    .description(request.getDescription()).build();
 
             Mockito.when(superHeroesService.createSuperHero(ArgumentMatchers.any())).thenReturn(domainToResponse);
 
@@ -243,9 +251,11 @@ class SuperHeroeControllerIT {
 
             final String requestBody = defaultApplicationJsonMapper.getJsonFromObject(request);
 
-            final SuperHeroDomain domainToResponse = SuperHeroDomain.builder().name(request.getName()).description(request.getDescription()).build();
+            final SuperHeroDomain domainToResponse = SuperHeroDomain.builder().name(request.getName())
+                    .description(request.getDescription()).build();
 
-            Mockito.when(superHeroesService.updateSuperHero(ArgumentMatchers.anyLong(),ArgumentMatchers.any())).thenReturn(domainToResponse);
+            Mockito.when(superHeroesService.updateSuperHero(ArgumentMatchers.anyLong(), ArgumentMatchers.any()))
+                    .thenReturn(domainToResponse);
 
             // @formatter:off
             final MvcResult result =  mockMvc.perform(MockMvcRequestBuilders.put(RequestMappings.API + RequestMappings.SUPERHEROES + "/{id}",SuperHeroFactory.HERO_ID)
@@ -255,9 +265,11 @@ class SuperHeroeControllerIT {
                     .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
             // @formatter:on
 
-            Mockito.verify(superHeroesService, Mockito.times(1)).updateSuperHero(ArgumentMatchers.anyLong(),ArgumentMatchers.any());
+            Mockito.verify(superHeroesService, Mockito.times(1))
+                    .updateSuperHero(ArgumentMatchers.anyLong(), ArgumentMatchers.any());
             final String response = result.getResponse().getContentAsString();
-            final SuperHeroDomain domain = defaultApplicationJsonMapper.getObjectFromJson(response, SuperHeroDomain.class);
+            final SuperHeroDomain domain = defaultApplicationJsonMapper.getObjectFromJson(response,
+                    SuperHeroDomain.class);
 
             Assertions.assertEquals(request.getName(), domain.getName());
             Assertions.assertEquals(request.getDescription(), domain.getDescription());
@@ -265,7 +277,7 @@ class SuperHeroeControllerIT {
 
         @Test
         @DisplayName("Access is denied if requesting user does not have permissions")
-            //@WithMockUser(username = "admin", roles = "ADMIN")
+        //@WithMockUser(username = "admin", roles = "ADMIN")
         @Disabled
         void givenRequestingUserWithoutPermissions_ThenOperationIsDenied() {
             final HeroRequest request = SuperHeroFactory.getRequest();
@@ -329,11 +341,12 @@ class SuperHeroeControllerIT {
         }
 
     }
+
     @Nested
     @DisplayName("deleteAllSuperHeros Test test cases")
     class deleteAllSuperHerosTest {
         @Test
-                   //@WithMockUser(username = "admin", roles = "ADMIN")
+            //@WithMockUser(username = "admin", roles = "ADMIN")
         void givenRequestingUserWithPermissions_ThenOperationIsAccepted() throws Exception {
 
             //// @formatter:off
@@ -347,7 +360,7 @@ class SuperHeroeControllerIT {
 
         @Test
         @DisplayName("Access is denied if requesting user does not have permissions")
-                @Disabled
+        @Disabled
 //@WithMockUser(username = "admin", roles = "ADMIN")
         void givenRequestingUserWithoutPermissions_ThenOperationIsDenied() {
 

@@ -5,16 +5,10 @@ import lombok.EqualsAndHashCode;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.util.Map;
-
 @EqualsAndHashCode(callSuper = true)
 @Data
 @ResponseStatus(value = HttpStatus.CONFLICT)
 public class BusinessRuleViolatedException extends RuntimeException {
-
-    private static final long serialVersionUID = -4266407830327120763L;
-
-    private Map criteria;
 
     private Object[] parameters;
 

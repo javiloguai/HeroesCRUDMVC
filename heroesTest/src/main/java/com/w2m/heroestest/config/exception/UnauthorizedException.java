@@ -5,16 +5,10 @@ import lombok.EqualsAndHashCode;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.util.Map;
-
 @EqualsAndHashCode(callSuper = true)
 @Data
 @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
 public class UnauthorizedException extends RuntimeException {
-
-    private static final long serialVersionUID = 806194899094351126L;
-
-    private Map criteria;
 
     private Object[] parameters;
 

@@ -104,7 +104,7 @@ public class BaseController {
         Map<String, Object> item = new HashMap<>();
         item.put(MESSAGE, messageSource.getMessage("default.businessrule.exception", null, exception.getMessage(),
                 LocaleContextHolder.getLocale()));
-        item.put("adicional", exception.getCriteria());
+        item.put("adicional", exception.getParameters());
         return item;
     }
 
@@ -119,7 +119,7 @@ public class BaseController {
     public Map<String, Object> handleException(AccessDeniedException exception) {
         Map<String, Object> item = new HashMap<>();
         String mensaje = exception.getLocalizedMessage();
-        if (StringUtils.isEmpty(mensaje)) {
+        if (StringUtils.hasText(mensaje)) {
             mensaje = messageSource.getMessage("default.denied.exception", null, FORBIDDEN,
                     LocaleContextHolder.getLocale());
         }
@@ -187,7 +187,7 @@ public class BaseController {
     public Map<String, Object> handleException(AlreadyExistException exception) {
         Map<String, Object> item = new HashMap<>();
         String mensaje = exception.getLocalizedMessage();
-        if (StringUtils.isEmpty(mensaje)) {
+        if (StringUtils.hasText(mensaje)) {
             mensaje = messageSource.getMessage("default.alreadyexists.exception", null, CONFLICT,
                     LocaleContextHolder.getLocale());
         }

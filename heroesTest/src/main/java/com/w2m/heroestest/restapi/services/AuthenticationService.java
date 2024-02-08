@@ -9,10 +9,8 @@ import com.w2m.heroestest.restapi.server.responses.AuthenticationResponse;
  */
 public interface AuthenticationService {
 
-
     AuthenticationResponse login(AuthenticationRequest request);
-    AuthenticationResponse register(RegisterRequest request);
 
-    //void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException;
+    AuthenticationResponse register(RegisterRequest request);
 
 }

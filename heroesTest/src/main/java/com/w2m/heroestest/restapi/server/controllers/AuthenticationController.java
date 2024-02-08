@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Authentication", description = "Authentication management APIs")
 public class AuthenticationController {
 
-    private static final Logger LOGGER = LogManager.getLogger(SuperHeroeController.class);
+    private static final Logger LOGGER = LogManager.getLogger(AuthenticationController.class);
 
     @Autowired
     private AuthenticationService authenticationService;
@@ -34,22 +34,15 @@ public class AuthenticationController {
     @Operation(summary = "Login", description = "This api used to authenticate user to access secured api's")
     @PostMapping(RequestMappings.LOGIN)
     public ResponseEntity<AuthenticationResponse> login(@RequestBody AuthenticationRequest authenticationRequest) {
-        LOGGER.debug("Authenticating user: " + authenticationRequest.toString());
+        LOGGER.debug(String.format("Authenticating user: %s", authenticationRequest.toString()));
         return ResponseEntity.ok(authenticationService.login(authenticationRequest));
     }
 
     @Operation(summary = "Register", description = "This api used to register user to access secured api's. Available Roles are USER and ADMIN")
-    @PostMapping("/register")
+    @PostMapping(RequestMappings.REGISTER)
     public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest registerRequest) {
-        LOGGER.debug("Registering user: " + registerRequest.toString());
+        LOGGER.debug(String.format("Registering user: %s", registerRequest.toString()));
         return ResponseEntity.ok(authenticationService.register(registerRequest));
     }
-
-//    @Operation(summary = "Refresh token", description = "This api used to refresh the token")
-//    @PostMapping("/refresh-token")
-//    public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
-//        LOGGER.debug("Refreshing token");
-//        authenticationService.refreshToken(request, response);
-//    }
 
 }

@@ -19,7 +19,7 @@ public final class RequestMappings {
      * Default constructor. This class can't be instantiated.
      */
     private RequestMappings() {
-        super();
+        
     }
 
 }

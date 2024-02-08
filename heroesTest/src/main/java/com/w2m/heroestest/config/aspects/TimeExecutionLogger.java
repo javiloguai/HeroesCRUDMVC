@@ -22,9 +22,8 @@ public class TimeExecutionLogger {
         long start = System.currentTimeMillis();
         Object o = point.proceed();
         long end = System.currentTimeMillis();
-        LOGGER.info(
-                "Class Name: " + point.getSignature().getDeclaringTypeName() + ". Method Name: " + point.getSignature()
-                        .getName() + ". Time taken for Execution is : " + (end - start) + "ms");
+        LOGGER.info(String.format("Class Name: %s. Method Name: %s. Time taken for Execution is : %dms",
+                point.getSignature().getDeclaringTypeName(), point.getSignature().getName(), (end - start)));
         return o;
     }
 }

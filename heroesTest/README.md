@@ -35,6 +35,8 @@ This application implemented using:
 
 #### Integration Test
  
+##To start API on a container docker
+run mvn clean install
 
 ## To access H2 DB console
 >  URL : http://localhost:8080/h2-ui/

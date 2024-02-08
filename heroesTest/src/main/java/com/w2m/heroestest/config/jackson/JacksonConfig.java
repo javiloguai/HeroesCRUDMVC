@@ -10,8 +10,6 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import com.w2m.heroestest.converters.LocalDateConverter;
-import com.w2m.heroestest.converters.LocalDateTimeConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -27,9 +25,9 @@ import java.time.format.DateTimeFormatter;
 public class JacksonConfig {
     protected static final String JACKSON_TIME_MODULE = "jackson-LocalDateTime";
 
+    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
-    private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-    private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
     /**
      * Gets the mapper.
@@ -44,29 +42,14 @@ public class JacksonConfig {
         mapper.registerModule(new JavaTimeModule());
 
         final SimpleModule module = new SimpleModule(JACKSON_TIME_MODULE, Version.unknownVersion());
-        module.addSerializer(LocalDate.class,
-                new LocalDateSerializer(dateFormatter));
+        module.addSerializer(LocalDate.class, new LocalDateSerializer(dateFormatter));
         module.addDeserializer(LocalDate.class, new LocalDateDeserializer(dateFormatter));
 
-        module.addSerializer(LocalDateTime.class,
-                new LocalDateTimeSerializer(dateTimeFormatter));
-        module.addDeserializer(LocalDateTime.class,
-                new LocalDateTimeDeserializer(dateTimeFormatter));
+        module.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(dateTimeFormatter));
+        module.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(dateTimeFormatter));
         mapper.registerModule(module);
 
         return mapper;
-    }
-
-
-    @Bean
-    public LocalDateConverter defaultLocalDateConverter() {
-        return new LocalDateConverter("dd-MM-yyyy");
-    }
-
-
-    @Bean
-    public LocalDateTimeConverter multiFormatDateTimeConverter() {
-        return new LocalDateTimeConverter("dd-MM-yyyy HH:mm:ss");
     }
 
     /**
@@ -76,10 +59,8 @@ public class JacksonConfig {
      */
     @Bean
     public DefaultApplicationJsonMapper defaultApplicationJsonMapper() {
-        return new DefaultApplicationJsonMapper("dd-MM-yyyy",
-                "dd-MM-yyyy HH:mm:ss");
+        return new DefaultApplicationJsonMapper(getMapper());
     }
-
 
     /**
      * Support for Java date and time API.

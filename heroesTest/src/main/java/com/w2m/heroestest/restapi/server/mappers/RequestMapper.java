@@ -1,10 +1,5 @@
 package com.w2m.heroestest.restapi.server.mappers;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-
-import java.util.List;
-
 /**
  * Mapper from requests to domain dto
  *

@@ -9,6 +9,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -47,7 +48,7 @@ public interface SuperHeroRequestMapper extends RequestMapper<HeroRequest, Super
 
     default List<SuperPowerDTO> mapList(List<SuperPower> superPower) {
         if (Objects.isNull(superPower)) {
-            return null;
+            return Collections.emptyList();
         } else if (superPower.isEmpty()) {
             return new ArrayList<SuperPowerDTO>();
         }

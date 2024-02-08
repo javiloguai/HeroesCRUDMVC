@@ -5,8 +5,6 @@ import lombok.EqualsAndHashCode;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.util.Map;
-
 /**
  * The Class ServiceException.
  */
@@ -14,10 +12,6 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class AlreadyExistException extends RuntimeException {
-
-    private static final long serialVersionUID = -4160273984911658572L;
-
-    private Map criteria;
 
     private Object[] parameters;
 

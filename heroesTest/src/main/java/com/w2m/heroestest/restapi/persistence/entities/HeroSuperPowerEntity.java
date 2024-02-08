@@ -17,7 +17,7 @@ import org.hibernate.annotations.GenericGenerator;
 public class HeroSuperPowerEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
-    @GenericGenerator(name = "native", strategy = "native")
+    @GenericGenerator(name = "native")
     @Column(name = "ID")
     private long id;
 
