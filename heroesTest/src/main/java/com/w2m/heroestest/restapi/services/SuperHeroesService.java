@@ -33,6 +33,6 @@ public interface SuperHeroesService {
 
     void deleteSuperHeroById(final Long id);
 
-    void deleteAllSuperHeros();
+    void deleteAllSuperHeroes();
 
 }

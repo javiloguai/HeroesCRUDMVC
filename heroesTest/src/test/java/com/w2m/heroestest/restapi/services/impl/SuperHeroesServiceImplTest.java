@@ -17,7 +17,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.mock.mockito.MockBean;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -32,672 +31,682 @@ import static org.mockito.ArgumentMatchers.any;
 
 /**
  * @author jruizh
- *
  */
-//@ExtendWith(MockitoExtension.class)
-//@WebMvcTest(SuperHeroesServiceImpl.class)
-@ExtendWith({SpringExtension.class, MockitoExtension.class})
+@ExtendWith({ SpringExtension.class, MockitoExtension.class })
 @ContextConfiguration
-//@WithMockUser(username="admin",roles={"USER","ADMIN"})
 public class SuperHeroesServiceImplTest {
 
-	private static final String ID_MANDATORY="Id field is Mandatory";
-	private static final String NAME_EMPTY="Hero name cannot be empty";
-	private static final String POWERS_EMPTY="Hero superpowers list cannot be empty";
-	private static final String PAGE_MANDATORY="page info is Mandatory";
-	private static final String NAME_MANDATORY="name field is Mandatory";
-	private static final String POWER_MANDATORY="power field is Mandatory";
-	private static final String HERO_MANDATORY="The hero Object is Mandatory";
+    private static final String ID_MANDATORY = "Id field is Mandatory";
 
-	@InjectMocks
-	private SuperHeroesServiceImpl superHeroesService;
+    private static final String NAME_EMPTY = "Hero name cannot be empty";
 
-	@MockBean
-	private SuperHeroRepository superHeroRepository;
+    private static final String POWERS_EMPTY = "Hero superpowers list cannot be empty";
 
-	@MockBean
-	private HeroSuperPowerRepository heroSuperPowerRepository;
+    private static final String PAGE_MANDATORY = "page info is Mandatory";
 
-	@Captor
-	private ArgumentCaptor<HeroSuperPowerEntity> heroSuperPowerEntityCaptor;
+    private static final String NAME_MANDATORY = "name field is Mandatory";
 
-	@Captor
-	private ArgumentCaptor<SuperHeroEntity> superHeroEntityCaptor;
+    private static final String POWER_MANDATORY = "power field is Mandatory";
 
-	/**
-	 * Tests for getAllSuperHeroes method
-	 */
-	@Nested
-	class getAllSuperHeroesTest {
+    private static final String HERO_MANDATORY = "The hero Object is Mandatory";
 
-		@Test
-		void givenNullPage_thenThrowException() {
+    @InjectMocks
+    private SuperHeroesServiceImpl superHeroesService;
 
-			final BusinessRuleViolatedException ex = Assertions.assertThrows(BusinessRuleViolatedException.class,
-					() -> superHeroesService.pageAllSuperHeroes(null));
-			Assertions.assertEquals(PAGE_MANDATORY, ex.getMessage());
+    @MockBean
+    private SuperHeroRepository superHeroRepository;
 
-		}
+    @MockBean
+    private HeroSuperPowerRepository heroSuperPowerRepository;
 
-		@Test
-		void givenNonExistingHeroes_thenReturnEmptyPage() {
-			// given
-			//MockSecurity.setMockUserInTest(MockSecurity.getUser(Role.USER));
+    @Captor
+    private ArgumentCaptor<HeroSuperPowerEntity> heroSuperPowerEntityCaptor;
 
-			final List<SuperHeroEntity> hlist = List.of();
+    @Captor
+    private ArgumentCaptor<SuperHeroEntity> superHeroEntityCaptor;
 
-			final Pageable pageable = PageRequest.of(0, 20);
-			final Page<SuperHeroEntity> pageResult = new PageImpl<>(hlist, pageable, 1);
-			Mockito.when(superHeroRepository.findAll(any(Pageable.class))).thenReturn(pageResult);
+    /**
+     * Tests for getAllSuperHeroes method
+     */
+    @Nested
+    class getAllSuperHeroesTest {
 
-			// when
-			final Page<SuperHeroDomain> pageResultDomain = superHeroesService.pageAllSuperHeroes(pageable);
+        @Test
+        void givenNullPage_thenThrowException() {
 
-			// then
-			Assertions.assertNotNull(pageResultDomain);
-			Assertions.assertTrue(pageResultDomain.isEmpty());
-			Assertions.assertEquals(hlist.size(), pageResultDomain.getTotalElements());
+            final BusinessRuleViolatedException ex = Assertions.assertThrows(BusinessRuleViolatedException.class,
+                    () -> superHeroesService.pageAllSuperHeroes(null));
+            Assertions.assertEquals(PAGE_MANDATORY, ex.getMessage());
 
-		}
+        }
 
-		@Test
-		void givenNonExistingHeroes_thenReturnEmptyList() {
-			// given
-			//MockSecurity.setMockUserInTest(MockSecurity.getUser(Role.USER));
+        @Test
+        void givenNonExistingHeroes_thenReturnEmptyPage() {
+            // given
+            //MockSecurity.setMockUserInTest(MockSecurity.getUser(Role.USER));
 
-			final List<SuperHeroEntity> hlist = List.of();
+            final List<SuperHeroEntity> hlist = List.of();
 
-			Mockito.when(superHeroRepository.findAll()).thenReturn(hlist);
+            final Pageable pageable = PageRequest.of(0, 20);
+            final Page<SuperHeroEntity> pageResult = new PageImpl<>(hlist, pageable, 1);
+            Mockito.when(superHeroRepository.findAll(any(Pageable.class))).thenReturn(pageResult);
 
+            // when
+            final Page<SuperHeroDomain> pageResultDomain = superHeroesService.pageAllSuperHeroes(pageable);
 
-			// when
-			final List<SuperHeroDomain> listResultDomain = superHeroesService.getAllSuperHeroes();
+            // then
+            Assertions.assertNotNull(pageResultDomain);
+            Assertions.assertTrue(pageResultDomain.isEmpty());
+            Assertions.assertEquals(hlist.size(), pageResultDomain.getTotalElements());
 
-			// then
-			Assertions.assertNotNull(listResultDomain);
-			Assertions.assertTrue(listResultDomain.isEmpty());
-			Assertions.assertEquals(hlist.size(), listResultDomain.size());
-		}
+        }
 
-		@Test
-		void givenExistingHeroes_thenReturnAllPagedHeroes() {
-			// given
-			//MockSecurity.setMockUserInTest(MockSecurity.getUser(Role.USER));
+        @Test
+        void givenNonExistingHeroes_thenReturnEmptyList() {
+            // given
+            //MockSecurity.setMockUserInTest(MockSecurity.getUser(Role.USER));
 
-			final SuperHeroEntity h1 = SuperHeroFactory.getEntity(1L);
-			final SuperHeroEntity h2 = SuperHeroFactory.getEntity(2L);
+            final List<SuperHeroEntity> hlist = List.of();
 
-		    final List<SuperHeroEntity> hlist = List.of(h1, h2);
+            Mockito.when(superHeroRepository.findAll()).thenReturn(hlist);
 
-			final Pageable pageable = PageRequest.of(0, 20);
-			final Page<SuperHeroEntity> pageResult = new PageImpl<>(hlist, pageable, 1);
-			Mockito.when(superHeroRepository.findAll(any(Pageable.class))).thenReturn(pageResult);
+            // when
+            final List<SuperHeroDomain> listResultDomain = superHeroesService.getAllSuperHeroes();
 
-			// when
-			final Page<SuperHeroDomain> pageResultDomain = superHeroesService.pageAllSuperHeroes(pageable);
+            // then
+            Assertions.assertNotNull(listResultDomain);
+            Assertions.assertTrue(listResultDomain.isEmpty());
+            Assertions.assertEquals(hlist.size(), listResultDomain.size());
+        }
 
-			// then
-			Assertions.assertEquals(hlist.size(), pageResultDomain.getTotalElements());
-			Assertions.assertEquals(hlist.get(0).getId(), pageResultDomain.toList().get(0).getId());
-			Assertions.assertEquals(hlist.get(1).getId(), pageResultDomain.toList().get(1).getId());
-		}
+        @Test
+        void givenExistingHeroes_thenReturnAllPagedHeroes() {
+            // given
+            //MockSecurity.setMockUserInTest(MockSecurity.getUser(Role.USER));
 
-		@Test
-		void givenExistingHeroes_thenReturnAllHeroes() {
-			// given
-			//MockSecurity.setMockUserInTest(MockSecurity.getUser(Role.USER));
+            final SuperHeroEntity h1 = SuperHeroFactory.getEntity(1L);
+            final SuperHeroEntity h2 = SuperHeroFactory.getEntity(2L);
 
-			final SuperHeroEntity h1 = SuperHeroFactory.getEntity(1L);
-			final SuperHeroEntity h2 = SuperHeroFactory.getEntity(2L);
+            final List<SuperHeroEntity> hlist = List.of(h1, h2);
 
-			final List<SuperHeroEntity> hlist = List.of(h1, h2);
+            final Pageable pageable = PageRequest.of(0, 20);
+            final Page<SuperHeroEntity> pageResult = new PageImpl<>(hlist, pageable, 1);
+            Mockito.when(superHeroRepository.findAll(any(Pageable.class))).thenReturn(pageResult);
 
-			Mockito.when(superHeroRepository.findAll()).thenReturn(hlist);
+            // when
+            final Page<SuperHeroDomain> pageResultDomain = superHeroesService.pageAllSuperHeroes(pageable);
 
-			// when
-			final List<SuperHeroDomain> listResultDomain = superHeroesService.getAllSuperHeroes();
+            // then
+            Assertions.assertEquals(hlist.size(), pageResultDomain.getTotalElements());
+            Assertions.assertEquals(hlist.get(0).getId(), pageResultDomain.toList().get(0).getId());
+            Assertions.assertEquals(hlist.get(1).getId(), pageResultDomain.toList().get(1).getId());
+        }
 
-			// then
-			Assertions.assertEquals(hlist.size(), listResultDomain.size());
-			Assertions.assertEquals(hlist.get(0).getId(), listResultDomain.get(0).getId());
-			Assertions.assertEquals(hlist.get(1).getId(), listResultDomain.get(1).getId());
-		}
+        @Test
+        void givenExistingHeroes_thenReturnAllHeroes() {
+            // given
+            //MockSecurity.setMockUserInTest(MockSecurity.getUser(Role.USER));
 
+            final SuperHeroEntity h1 = SuperHeroFactory.getEntity(1L);
+            final SuperHeroEntity h2 = SuperHeroFactory.getEntity(2L);
 
-	}
+            final List<SuperHeroEntity> hlist = List.of(h1, h2);
 
-	/**
-	 * Tests for getAllSuperHeroesByName method
-	 */
-	@Nested
-	class getAllSuperHeroesByNameTest {
+            Mockito.when(superHeroRepository.findAll()).thenReturn(hlist);
 
-		@Test
-		void givenNullName_thenThrowException() {
+            // when
+            final List<SuperHeroDomain> listResultDomain = superHeroesService.getAllSuperHeroes();
 
-			final List<SuperHeroEntity> hlist = List.of();
+            // then
+            Assertions.assertEquals(hlist.size(), listResultDomain.size());
+            Assertions.assertEquals(hlist.get(0).getId(), listResultDomain.get(0).getId());
+            Assertions.assertEquals(hlist.get(1).getId(), listResultDomain.get(1).getId());
+        }
 
-			final Pageable pageable = PageRequest.of(0, 20);
+    }
 
-			final BusinessRuleViolatedException ex = Assertions.assertThrows(BusinessRuleViolatedException.class,
-					() -> superHeroesService.getAllSuperHeroesByName(null));
-			Assertions.assertEquals(NAME_MANDATORY, ex.getMessage());
+    /**
+     * Tests for getAllSuperHeroesByName method
+     */
+    @Nested
+    class getAllSuperHeroesByNameTest {
 
-			final BusinessRuleViolatedException ex2 = Assertions.assertThrows(BusinessRuleViolatedException.class,
-					() -> superHeroesService.pageAllSuperHeroesByName(null,pageable));
-			Assertions.assertEquals(NAME_MANDATORY, ex2.getMessage());
+        @Test
+        void givenNullName_thenThrowException() {
 
-		}
+            final List<SuperHeroEntity> hlist = List.of();
 
-		@Test
-		void givenNullPage_thenThrowException() {
+            final Pageable pageable = PageRequest.of(0, 20);
 
-			final BusinessRuleViolatedException ex = Assertions.assertThrows(BusinessRuleViolatedException.class,
-					() -> superHeroesService.pageAllSuperHeroesByName("name",null));
-			Assertions.assertEquals(PAGE_MANDATORY, ex.getMessage());
+            final BusinessRuleViolatedException ex = Assertions.assertThrows(BusinessRuleViolatedException.class,
+                    () -> superHeroesService.getAllSuperHeroesByName(null));
+            Assertions.assertEquals(NAME_MANDATORY, ex.getMessage());
 
-		}
+            final BusinessRuleViolatedException ex2 = Assertions.assertThrows(BusinessRuleViolatedException.class,
+                    () -> superHeroesService.pageAllSuperHeroesByName(null, pageable));
+            Assertions.assertEquals(NAME_MANDATORY, ex2.getMessage());
 
-		@Test
-		void givenNonMatchingHeroes_thenReturnEmptyPage() {
-			// given
-			//MockSecurity.setMockUserInTest(MockSecurity.getUser(Role.USER));
+        }
 
-			final List<SuperHeroEntity> hlist = List.of();
+        @Test
+        void givenNullPage_thenThrowException() {
 
-			final Pageable pageable = PageRequest.of(0, 20);
-			final Page<SuperHeroEntity> pageResult = new PageImpl<>(hlist, pageable, 1);
-			Mockito.when(superHeroRepository.findByNameContainingIgnoreCase(ArgumentMatchers.any(String.class),ArgumentMatchers.any(Pageable.class))).thenReturn(pageResult);
+            final BusinessRuleViolatedException ex = Assertions.assertThrows(BusinessRuleViolatedException.class,
+                    () -> superHeroesService.pageAllSuperHeroesByName("name", null));
+            Assertions.assertEquals(PAGE_MANDATORY, ex.getMessage());
 
-			// when
-			final Page<SuperHeroDomain> pageResultDomain = superHeroesService.pageAllSuperHeroesByName("XXX",pageable);
+        }
 
-			// then
-			Assertions.assertNotNull(pageResultDomain);
-			Assertions.assertTrue(pageResultDomain.isEmpty());
-			Assertions.assertEquals(hlist.size(), pageResultDomain.getTotalElements());
+        @Test
+        void givenNonMatchingHeroes_thenReturnEmptyPage() {
+            // given
+            //MockSecurity.setMockUserInTest(MockSecurity.getUser(Role.USER));
 
-		}
+            final List<SuperHeroEntity> hlist = List.of();
 
-		@Test
-		void givenNonMatchingHeroes_thenReturnEmptyList() {
-			// given
-			//MockSecurity.setMockUserInTest(MockSecurity.getUser(Role.USER));
+            final Pageable pageable = PageRequest.of(0, 20);
+            final Page<SuperHeroEntity> pageResult = new PageImpl<>(hlist, pageable, 1);
+            Mockito.when(superHeroRepository.findByNameContainingIgnoreCase(ArgumentMatchers.any(String.class),
+                    ArgumentMatchers.any(Pageable.class))).thenReturn(pageResult);
 
-			final List<SuperHeroEntity> hlist = List.of();
+            // when
+            final Page<SuperHeroDomain> pageResultDomain = superHeroesService.pageAllSuperHeroesByName("XXX", pageable);
 
-			Mockito.when(superHeroRepository.findByNameContaining(ArgumentMatchers.any(String.class))).thenReturn(hlist);
+            // then
+            Assertions.assertNotNull(pageResultDomain);
+            Assertions.assertTrue(pageResultDomain.isEmpty());
+            Assertions.assertEquals(hlist.size(), pageResultDomain.getTotalElements());
 
-			// when
-			final List<SuperHeroDomain> listResultDomain = superHeroesService.getAllSuperHeroesByName("XXX");
+        }
 
-			// then
-			Assertions.assertNotNull(listResultDomain);
-			Assertions.assertTrue(listResultDomain.isEmpty());
-			Assertions.assertEquals(hlist.size(), listResultDomain.size());
-		}
+        @Test
+        void givenNonMatchingHeroes_thenReturnEmptyList() {
+            // given
+            //MockSecurity.setMockUserInTest(MockSecurity.getUser(Role.USER));
 
-		@Test
-		void givenMatchingHeroes_thenReturnAllMatchingPagedHeroes() {
-			// given
-			//MockSecurity.setMockUserInTest(MockSecurity.getUser(Role.USER));
+            final List<SuperHeroEntity> hlist = List.of();
 
-			final SuperHeroEntity h1 = SuperHeroFactory.getEntity(1L);
-			final SuperHeroEntity h2 = SuperHeroFactory.getEntity(2L);
+            Mockito.when(superHeroRepository.findByNameContaining(ArgumentMatchers.any(String.class)))
+                    .thenReturn(hlist);
 
-			final List<SuperHeroEntity> hlist = List.of(h1, h2);
+            // when
+            final List<SuperHeroDomain> listResultDomain = superHeroesService.getAllSuperHeroesByName("XXX");
 
-			final Pageable pageable = PageRequest.of(0, 20);
-			final Page<SuperHeroEntity> pageResult = new PageImpl<>(hlist, pageable, 1);
-			Mockito.when(superHeroRepository.findByNameContainingIgnoreCase(h1.getName(),pageable)).thenReturn(pageResult);
+            // then
+            Assertions.assertNotNull(listResultDomain);
+            Assertions.assertTrue(listResultDomain.isEmpty());
+            Assertions.assertEquals(hlist.size(), listResultDomain.size());
+        }
 
-			// when
-			final Page<SuperHeroDomain> pageResultDomain = superHeroesService.pageAllSuperHeroesByName(h1.getName(),pageable);
+        @Test
+        void givenMatchingHeroes_thenReturnAllMatchingPagedHeroes() {
+            // given
+            //MockSecurity.setMockUserInTest(MockSecurity.getUser(Role.USER));
 
-			// then
-			Assertions.assertEquals(hlist.size(), pageResultDomain.getTotalElements());
-			Assertions.assertEquals(hlist.get(0).getId(), pageResultDomain.toList().get(0).getId());
-			Assertions.assertEquals(hlist.get(1).getId(), pageResultDomain.toList().get(1).getId());
-		}
+            final SuperHeroEntity h1 = SuperHeroFactory.getEntity(1L);
+            final SuperHeroEntity h2 = SuperHeroFactory.getEntity(2L);
 
-		@Test
-		void givenMatchingHeroes_thenReturnMatchingHeroes() {
-			// given
-			//MockSecurity.setMockUserInTest(MockSecurity.getUser(Role.USER));
+            final List<SuperHeroEntity> hlist = List.of(h1, h2);
 
-			final SuperHeroEntity h1 = SuperHeroFactory.getEntity(1L);
-			final SuperHeroEntity h2 = SuperHeroFactory.getEntity(2L);
+            final Pageable pageable = PageRequest.of(0, 20);
+            final Page<SuperHeroEntity> pageResult = new PageImpl<>(hlist, pageable, 1);
+            Mockito.when(superHeroRepository.findByNameContainingIgnoreCase(h1.getName(), pageable))
+                    .thenReturn(pageResult);
 
-			final List<SuperHeroEntity> hlist = List.of(h1, h2);
+            // when
+            final Page<SuperHeroDomain> pageResultDomain = superHeroesService.pageAllSuperHeroesByName(h1.getName(),
+                    pageable);
 
-			Mockito.when(superHeroRepository.findByNameContaining(h1.getName())).thenReturn(hlist);
+            // then
+            Assertions.assertEquals(hlist.size(), pageResultDomain.getTotalElements());
+            Assertions.assertEquals(hlist.get(0).getId(), pageResultDomain.toList().get(0).getId());
+            Assertions.assertEquals(hlist.get(1).getId(), pageResultDomain.toList().get(1).getId());
+        }
 
-			// when
-			final List<SuperHeroDomain> listResultDomain = superHeroesService.getAllSuperHeroesByName(h1.getName());
+        @Test
+        void givenMatchingHeroes_thenReturnMatchingHeroes() {
+            // given
+            //MockSecurity.setMockUserInTest(MockSecurity.getUser(Role.USER));
 
-			// then
-			Assertions.assertEquals(hlist.size(), listResultDomain.size());
-			Assertions.assertEquals(hlist.get(0).getId(), listResultDomain.get(0).getId());
-			Assertions.assertEquals(hlist.get(1).getId(), listResultDomain.get(1).getId());
-		}
+            final SuperHeroEntity h1 = SuperHeroFactory.getEntity(1L);
+            final SuperHeroEntity h2 = SuperHeroFactory.getEntity(2L);
 
+            final List<SuperHeroEntity> hlist = List.of(h1, h2);
 
-	}
+            Mockito.when(superHeroRepository.findByNameContaining(h1.getName())).thenReturn(hlist);
 
-	/**
-	 * Tests for getAllSuperHeroesBySuperPower method
-	 */
-	@Nested
-	class getAllSuperHeroesBySuperPowerTest {
+            // when
+            final List<SuperHeroDomain> listResultDomain = superHeroesService.getAllSuperHeroesByName(h1.getName());
 
-		@Test
-		void givenNullPower_thenThrowException() {
+            // then
+            Assertions.assertEquals(hlist.size(), listResultDomain.size());
+            Assertions.assertEquals(hlist.get(0).getId(), listResultDomain.get(0).getId());
+            Assertions.assertEquals(hlist.get(1).getId(), listResultDomain.get(1).getId());
+        }
 
-			final BusinessRuleViolatedException ex = Assertions.assertThrows(BusinessRuleViolatedException.class,
-					() -> superHeroesService.getAllSuperHeroesBySuperPower(null));
-			Assertions.assertEquals(POWER_MANDATORY, ex.getMessage());
+    }
 
+    /**
+     * Tests for getAllSuperHeroesBySuperPower method
+     */
+    @Nested
+    class getAllSuperHeroesBySuperPowerTest {
 
-		}
+        @Test
+        void givenNullPower_thenThrowException() {
 
-		@Test
-		void givenNonMatchingPower_thenReturnEmptyList() {
-			// given
-			//MockSecurity.setMockUserInTest(MockSecurity.getUser(Role.USER));
+            final BusinessRuleViolatedException ex = Assertions.assertThrows(BusinessRuleViolatedException.class,
+                    () -> superHeroesService.getAllSuperHeroesBySuperPower(null));
+            Assertions.assertEquals(POWER_MANDATORY, ex.getMessage());
 
-			final List<HeroSuperPowerEntity> plist = List.of();
-			final List<SuperHeroEntity> hlist = List.of();
+        }
 
-			List<Long> heroesIds = plist.stream().map(p -> p.getSuperheroId()).distinct().toList();
+        @Test
+        void givenNonMatchingPower_thenReturnEmptyList() {
+            // given
+            //MockSecurity.setMockUserInTest(MockSecurity.getUser(Role.USER));
 
-			Mockito.when(heroSuperPowerRepository.findBySuperPower(ArgumentMatchers.any(SuperPower.class))).thenReturn(plist);
+            final List<HeroSuperPowerEntity> plist = List.of();
+            final List<SuperHeroEntity> hlist = List.of();
 
-			Mockito.when(superHeroRepository.findAllById(heroesIds)).thenReturn(hlist);
+            List<Long> heroesIds = plist.stream().map(p -> p.getSuperheroId()).distinct().toList();
 
-			// when
-			final List<SuperHeroDomain> listResultDomain = superHeroesService.getAllSuperHeroesBySuperPower(SuperPower.MOLECULAR_COMBUSTION);
+            Mockito.when(heroSuperPowerRepository.findBySuperPower(ArgumentMatchers.any(SuperPower.class)))
+                    .thenReturn(plist);
 
-			// then
-			Assertions.assertNotNull(listResultDomain);
-			Assertions.assertTrue(listResultDomain.isEmpty());
-			Assertions.assertEquals(hlist.size(), listResultDomain.size());
-		}
+            Mockito.when(superHeroRepository.findAllById(heroesIds)).thenReturn(hlist);
 
-		@Test
-		void givenMatchingPower_thenReturnMatchingHeroes() {
-			// given
-			//MockSecurity.setMockUserInTest(MockSecurity.getUser(Role.USER));
+            // when
+            final List<SuperHeroDomain> listResultDomain = superHeroesService.getAllSuperHeroesBySuperPower(
+                    SuperPower.MOLECULAR_COMBUSTION);
 
-			final SuperHeroEntity h1 = SuperHeroFactory.getEntity(1L);
-			final SuperHeroEntity h2 = SuperHeroFactory.getEntity(2L);
+            // then
+            Assertions.assertNotNull(listResultDomain);
+            Assertions.assertTrue(listResultDomain.isEmpty());
+            Assertions.assertEquals(hlist.size(), listResultDomain.size());
+        }
 
-			SuperPower power = SuperHeroFactory.getPowerEntity(1L).getSuperPower();
+        @Test
+        void givenMatchingPower_thenReturnMatchingHeroes() {
+            // given
+            //MockSecurity.setMockUserInTest(MockSecurity.getUser(Role.USER));
 
-			HeroSuperPowerEntity p1 = SuperHeroFactory.getPowerEntity(1L,SuperHeroFactory.POWER_ID);
-			HeroSuperPowerEntity p2 = SuperHeroFactory.getPowerEntity(2L,SuperHeroFactory.POWER_ID+1);
+            final SuperHeroEntity h1 = SuperHeroFactory.getEntity(1L);
+            final SuperHeroEntity h2 = SuperHeroFactory.getEntity(2L);
 
+            SuperPower power = SuperHeroFactory.getPowerEntity(1L).getSuperPower();
 
-			final List<HeroSuperPowerEntity> plist = List.of(p1,p2);
-			final List<SuperHeroEntity> hlist = List.of(h1,h2);
+            HeroSuperPowerEntity p1 = SuperHeroFactory.getPowerEntity(1L, SuperHeroFactory.POWER_ID);
+            HeroSuperPowerEntity p2 = SuperHeroFactory.getPowerEntity(2L, SuperHeroFactory.POWER_ID + 1);
 
-			List<Long> heroesIds = plist.stream().map(p -> p.getSuperheroId()).distinct().toList();
+            final List<HeroSuperPowerEntity> plist = List.of(p1, p2);
+            final List<SuperHeroEntity> hlist = List.of(h1, h2);
 
-			Mockito.when(heroSuperPowerRepository.findBySuperPower(power)).thenReturn(plist);
+            List<Long> heroesIds = plist.stream().map(p -> p.getSuperheroId()).distinct().toList();
 
-			Mockito.when(superHeroRepository.findAllById(heroesIds)).thenReturn(hlist);
+            Mockito.when(heroSuperPowerRepository.findBySuperPower(power)).thenReturn(plist);
 
-			// when
-			final List<SuperHeroDomain> listResultDomain = superHeroesService.getAllSuperHeroesBySuperPower(power);
+            Mockito.when(superHeroRepository.findAllById(heroesIds)).thenReturn(hlist);
 
-			// then
-			Assertions.assertNotNull(listResultDomain);
-			Assertions.assertEquals(hlist.size(), listResultDomain.size());
-			Assertions.assertEquals(hlist.get(0).getId(), listResultDomain.get(0).getId());
-			Assertions.assertEquals(hlist.get(1).getId(), listResultDomain.get(1).getId());
-			Assertions.assertEquals(listResultDomain.get(0).getSuperPower().get(0).getSuperPower(),power);
-			Assertions.assertEquals(listResultDomain.get(1).getSuperPower().get(0).getSuperPower(),power);
-		}
+            // when
+            final List<SuperHeroDomain> listResultDomain = superHeroesService.getAllSuperHeroesBySuperPower(power);
 
+            // then
+            Assertions.assertNotNull(listResultDomain);
+            Assertions.assertEquals(hlist.size(), listResultDomain.size());
+            Assertions.assertEquals(hlist.get(0).getId(), listResultDomain.get(0).getId());
+            Assertions.assertEquals(hlist.get(1).getId(), listResultDomain.get(1).getId());
+            Assertions.assertEquals(listResultDomain.get(0).getSuperPower().get(0).getSuperPower(), power);
+            Assertions.assertEquals(listResultDomain.get(1).getSuperPower().get(0).getSuperPower(), power);
+        }
 
-	}
+    }
 
-	/**
-	 * Tests for findById method
-	 */
-	@Nested
-	class findByIdTest {
+    /**
+     * Tests for findById method
+     */
+    @Nested
+    class findByIdTest {
 
-		@Test
-		void givenNullId_thenThrowException() {
+        @Test
+        void givenNullId_thenThrowException() {
 
-			final BusinessRuleViolatedException ex = Assertions.assertThrows(BusinessRuleViolatedException.class,
-					() -> superHeroesService.findById(null));
-			Assertions.assertEquals(ID_MANDATORY, ex.getMessage());
+            final BusinessRuleViolatedException ex = Assertions.assertThrows(BusinessRuleViolatedException.class,
+                    () -> superHeroesService.findById(null));
+            Assertions.assertEquals(ID_MANDATORY, ex.getMessage());
 
-		}
+        }
 
-		@Test
-		void givenNotMatchingId_thenThrowNotFoundException() {
+        @Test
+        void givenNotMatchingId_thenThrowNotFoundException() {
 
-			Mockito.when(superHeroRepository.findById(ArgumentMatchers.anyLong())).thenReturn(Optional.empty());
+            Mockito.when(superHeroRepository.findById(ArgumentMatchers.anyLong())).thenReturn(Optional.empty());
 
-			final NotFoundException ex = Assertions.assertThrows(NotFoundException.class,
-					() -> superHeroesService.findById(SuperHeroFactory.HERO_ID));
-			Assertions.assertEquals("Not found hero with id "+SuperHeroFactory.HERO_ID, ex.getMessage());
+            final NotFoundException ex = Assertions.assertThrows(NotFoundException.class,
+                    () -> superHeroesService.findById(SuperHeroFactory.HERO_ID));
+            Assertions.assertEquals("Not found hero with id " + SuperHeroFactory.HERO_ID, ex.getMessage());
 
-		}
+        }
 
+        @Test
+        void givenMatchingId_thenReturnsTheHero() {
+            // given
+            //MockSecurity.setMockUserInTest(MockSecurity.getUser(Role.USER));
 
-		@Test
-		void givenMatchingId_thenReturnsTheHero() {
-			// given
-			//MockSecurity.setMockUserInTest(MockSecurity.getUser(Role.USER));
+            final SuperHeroEntity h1 = SuperHeroFactory.getEntity();
 
-			final SuperHeroEntity h1 = SuperHeroFactory.getEntity();
+            Mockito.when(superHeroRepository.findById(ArgumentMatchers.anyLong())).thenReturn(Optional.of(h1));
 
+            SuperHeroDomain hd = SuperHeroDataBaseMapper.INSTANCE.entityToDomain(h1);
 
-			Mockito.when(superHeroRepository.findById(ArgumentMatchers.anyLong())).thenReturn(Optional.of(h1));
+            // when
+            final SuperHeroDomain resultDomain = superHeroesService.findById(SuperHeroFactory.HERO_ID);
 
-			SuperHeroDomain hd = SuperHeroDataBaseMapper.INSTANCE.entityToDomain(h1);
+            // then
+            Assertions.assertNotNull(resultDomain);
+            Assertions.assertEquals(h1.getId(), resultDomain.getId());
+            Assertions.assertEquals(h1.getName(), resultDomain.getName());
+            Assertions.assertEquals(h1.getSuperPower().size(), resultDomain.getSuperPower().size());
+            Assertions.assertEquals(h1.getSuperPower().get(0).getSuperPower(),
+                    resultDomain.getSuperPower().get(0).getSuperPower());
 
+        }
 
-			// when
-			final SuperHeroDomain resultDomain = superHeroesService.findById(SuperHeroFactory.HERO_ID);
+    }
 
-			// then
-			Assertions.assertNotNull(resultDomain);
-			Assertions.assertEquals(h1.getId(), resultDomain.getId());
-			Assertions.assertEquals(h1.getName(), resultDomain.getName());
-			Assertions.assertEquals(h1.getSuperPower().size(), resultDomain.getSuperPower().size());
-			Assertions.assertEquals(h1.getSuperPower().get(0).getSuperPower(), resultDomain.getSuperPower().get(0).getSuperPower());
+    @Nested
+    class addSuperPowerTest {
 
-		}
+        @Test
+        void givenNullParameters_ThenThrowsException() {
+            //given
 
+            final BusinessRuleViolatedException ex = Assertions.assertThrows(BusinessRuleViolatedException.class,
+                    () -> superHeroesService.addSuperPower(null, SuperPower.TELEKINESIS));
+            Assertions.assertEquals(ID_MANDATORY, ex.getMessage());
 
-	}
+            final BusinessRuleViolatedException ex2 = Assertions.assertThrows(BusinessRuleViolatedException.class,
+                    () -> superHeroesService.addSuperPower(SuperHeroFactory.HERO_ID, null));
+            Assertions.assertEquals(POWER_MANDATORY, ex2.getMessage());
 
-	@Nested
-	class addSuperPowerTest {
+        }
 
-		@Test
-		void givenNullParameters_ThenThrowsException() {
-			//given
+        @Test
+        void givenNonExistingHero_ThenThrowsNotFoundException() {
+            //given
 
-			final BusinessRuleViolatedException ex = Assertions.assertThrows(BusinessRuleViolatedException.class,
-					() -> superHeroesService.addSuperPower(null,SuperPower.TELEKINESIS));
-			Assertions.assertEquals(ID_MANDATORY, ex.getMessage());
+            Mockito.when(superHeroRepository.findById(ArgumentMatchers.anyLong())).thenReturn(Optional.empty());
 
-			final BusinessRuleViolatedException ex2 = Assertions.assertThrows(BusinessRuleViolatedException.class,
-					() -> superHeroesService.addSuperPower(SuperHeroFactory.HERO_ID,null));
-			Assertions.assertEquals(POWER_MANDATORY, ex2.getMessage());
+            final NotFoundException ex = Assertions.assertThrows(NotFoundException.class,
+                    () -> superHeroesService.addSuperPower(SuperHeroFactory.HERO_ID, SuperPower.TELEKINESIS));
+            Assertions.assertEquals("Not found hero with id " + SuperHeroFactory.HERO_ID, ex.getMessage());
 
-		}
+        }
 
-		@Test
-		void givenNonExistingHero_ThenThrowsNotFoundException() {
-			//given
+        @Test
+        void givenExistingHero_WhenAlreadyHasThatPower_ThenThrowsAlreadyExistException() {
+            //given
 
-			Mockito.when(superHeroRepository.findById(ArgumentMatchers.anyLong())).thenReturn(Optional.empty());
+            final SuperHeroEntity h1 = SuperHeroFactory.getEntity();
 
-			final NotFoundException ex = Assertions.assertThrows(NotFoundException.class,
-					() -> superHeroesService.addSuperPower(SuperHeroFactory.HERO_ID,SuperPower.TELEKINESIS));
-			Assertions.assertEquals("Not found hero with id "+SuperHeroFactory.HERO_ID, ex.getMessage());
+            Mockito.when(superHeroRepository.findById(ArgumentMatchers.anyLong())).thenReturn(Optional.of(h1));
 
-		}
+            final AlreadyExistException ex = Assertions.assertThrows(AlreadyExistException.class,
+                    () -> superHeroesService.addSuperPower(SuperHeroFactory.HERO_ID, SuperPower.TELEKINESIS));
+            Assertions.assertEquals("This Hero already owns that superpower: " + SuperPower.TELEKINESIS,
+                    ex.getMessage());
 
-		@Test
-		void givenExistingHero_WhenAlreadyHasThatPower_ThenThrowsAlreadyExistException() {
-			//given
+        }
 
-			final SuperHeroEntity h1 = SuperHeroFactory.getEntity();
+        @Test
+        void givenExistingHero_WhenDoesNotHaveThatPower_ThenAddPower() {
+            //given
+            final SuperHeroEntity h1 = SuperHeroFactory.getEntity();
 
-			Mockito.when(superHeroRepository.findById(ArgumentMatchers.anyLong())).thenReturn(Optional.of(h1));
+            Mockito.when(superHeroRepository.findById(ArgumentMatchers.anyLong())).thenReturn(Optional.of(h1));
 
-			final AlreadyExistException ex = Assertions.assertThrows(AlreadyExistException.class,
-					() -> superHeroesService.addSuperPower(SuperHeroFactory.HERO_ID,SuperPower.TELEKINESIS));
-			Assertions.assertEquals("This Hero already owns that superpower: "+SuperPower.TELEKINESIS.toString(), ex.getMessage());
+            //when
+            SuperHeroDomain result = superHeroesService.addSuperPower(SuperHeroFactory.HERO_ID,
+                    SuperPower.EXTRAORDINARY_INTELLIGENCE);
 
-		}
+            //then
+            Mockito.verify(heroSuperPowerRepository, Mockito.times(1))
+                    .saveAndFlush(heroSuperPowerEntityCaptor.capture());
+            Assertions.assertEquals(SuperPower.EXTRAORDINARY_INTELLIGENCE,
+                    heroSuperPowerEntityCaptor.getValue().getSuperPower());
+            Assertions.assertNotNull(result);
+            List<SuperPower> hiroPowers = result.getSuperPower().stream().map(p -> p.getSuperPower()).distinct()
+                    .toList();
+            //TODO
+            // Has to Mock superHeroRepository.findById the second time to return an updated hero
+            //Assertions.assertTrue(hiroPowers.contains(SuperPower.EXTRAORDINARY_INTELLIGENCE));
+        }
 
-		@Test
-		void givenExistingHero_WhenDoesNotHaveThatPower_ThenAddPower() {
-			//given
-			final SuperHeroEntity h1 = SuperHeroFactory.getEntity();
+    }
 
-			Mockito.when(superHeroRepository.findById(ArgumentMatchers.anyLong())).thenReturn(Optional.of(h1));
+    @Nested
+    class createSuperHeroTest {
 
+        @Test
+        void givenNullParameters_ThenThrowsException() {
+            //given
+            final BusinessRuleViolatedException ex = Assertions.assertThrows(BusinessRuleViolatedException.class,
+                    () -> superHeroesService.createSuperHero(null));
+            Assertions.assertEquals(HERO_MANDATORY, ex.getMessage());
 
-			//when
-			SuperHeroDomain result = superHeroesService.addSuperPower(SuperHeroFactory.HERO_ID,SuperPower.EXTRAORDINARY_INTELLIGENCE);
+        }
 
-			//then
-			Mockito.verify(heroSuperPowerRepository, Mockito.times(1))
-					.saveAndFlush(heroSuperPowerEntityCaptor.capture());
-			Assertions.assertEquals(SuperPower.EXTRAORDINARY_INTELLIGENCE, heroSuperPowerEntityCaptor.getValue().getSuperPower());
-			Assertions.assertNotNull(result);
-			List<SuperPower> hiroPowers =  result.getSuperPower().stream().map(p->p.getSuperPower()).distinct().toList();
-			//TODO
-			// Has to Mock superHeroRepository.findById the second time to return an updated hero
-			//Assertions.assertTrue(hiroPowers.contains(SuperPower.EXTRAORDINARY_INTELLIGENCE));
-		}
+        @Test
+        void givenNotNullDto_WhenDtoIsNotValid_ThenThrowsException() {
+            //given
+            SuperHeroDTO noName = SuperHeroFactory.getDTO();
+            noName.setName(null);
+            SuperHeroDTO noPower = SuperHeroFactory.getDTO();
+            noPower.setSuperPower(null);
+            SuperHeroDTO alreadyExisting = SuperHeroFactory.getDTO();
+            SuperHeroEntity alreadyExistingE = SuperHeroFactory.getEntity();
+            alreadyExisting.setName("alreadyExisting");
+            alreadyExistingE.setName("alreadyExisting");
 
-	}
+            Mockito.when(superHeroRepository.findFirstByNameIgnoreCase("alreadyExisting"))
+                    .thenReturn(Optional.of(alreadyExistingE));
+            Mockito.when(superHeroRepository.findFirstByNameIgnoreCase(noPower.getName())).thenReturn(Optional.empty());
 
-	@Nested
-	class createSuperHeroTest {
+            final BusinessRuleViolatedException ex = Assertions.assertThrows(BusinessRuleViolatedException.class,
+                    () -> superHeroesService.createSuperHero(noName));
+            Assertions.assertEquals(NAME_EMPTY, ex.getMessage());
 
-		@Test
-		void givenNullParameters_ThenThrowsException() {
-			//given
-			final BusinessRuleViolatedException ex = Assertions.assertThrows(BusinessRuleViolatedException.class,
-					() -> superHeroesService.createSuperHero(null));
-			Assertions.assertEquals(HERO_MANDATORY, ex.getMessage());
+            final BusinessRuleViolatedException ex2 = Assertions.assertThrows(BusinessRuleViolatedException.class,
+                    () -> superHeroesService.createSuperHero(noPower));
+            Assertions.assertEquals(POWERS_EMPTY, ex2.getMessage());
 
-		}
+            final AlreadyExistException ex3 = Assertions.assertThrows(AlreadyExistException.class,
+                    () -> superHeroesService.createSuperHero(alreadyExisting));
+            Assertions.assertTrue(ex3.getMessage().contains("This Hero already exists"));
 
-		@Test
-		void givenNotNullDto_WhenDtoIsNotValid_ThenThrowsException() {
-			//given
-			SuperHeroDTO noName = SuperHeroFactory.getDTO();
-			noName.setName(null);
-			SuperHeroDTO noPower = SuperHeroFactory.getDTO();
-			noPower.setSuperPower(null);
-			SuperHeroDTO alreadyExisting = SuperHeroFactory.getDTO();
-			SuperHeroEntity alreadyExistingE = SuperHeroFactory.getEntity();
-			alreadyExisting.setName("alreadyExisting");
-			alreadyExistingE.setName("alreadyExisting");
+        }
 
-			Mockito.when(superHeroRepository.findFirstByNameIgnoreCase("alreadyExisting")).thenReturn(Optional.of(alreadyExistingE));
-			Mockito.when(superHeroRepository.findFirstByNameIgnoreCase(noPower.getName())).thenReturn(Optional.empty());
+        @Test
+        void givenValidatedDto_ThenCreateHero() {
+            //given
 
-			final BusinessRuleViolatedException ex = Assertions.assertThrows(BusinessRuleViolatedException.class,
-					() -> superHeroesService.createSuperHero(noName));
-			Assertions.assertEquals(NAME_EMPTY, ex.getMessage());
+            SuperHeroDTO validDto = SuperHeroFactory.getDTO();
+            SuperHeroEntity validEntity = SuperHeroFactory.getEntity();
 
-			final BusinessRuleViolatedException ex2 = Assertions.assertThrows(BusinessRuleViolatedException.class,
-					() -> superHeroesService.createSuperHero(noPower));
-			Assertions.assertEquals(POWERS_EMPTY, ex2.getMessage());
+            Mockito.when(superHeroRepository.findFirstByNameIgnoreCase(ArgumentMatchers.anyString()))
+                    .thenReturn(Optional.empty());
+            Mockito.when(superHeroRepository.findById(ArgumentMatchers.anyLong())).thenReturn(Optional.of(validEntity));
 
-			final AlreadyExistException ex3 = Assertions.assertThrows(AlreadyExistException.class,
-					() -> superHeroesService.createSuperHero(alreadyExisting));
-			Assertions.assertTrue(ex3.getMessage().contains("This Hero already exists"));
+            //when
+            superHeroesService.createSuperHero(validDto);
 
-		}
-		@Test
-		void givenValidatedDto_ThenCreateHero() {
-			//given
+            //then
+            Mockito.verify(superHeroRepository, Mockito.times(1)).saveAndFlush(superHeroEntityCaptor.capture());
+            Mockito.verify(heroSuperPowerRepository, Mockito.times(1)).saveAllAndFlush(ArgumentMatchers.any());
 
-			SuperHeroDTO validDto = SuperHeroFactory.getDTO();
-			SuperHeroEntity validEntity = SuperHeroFactory.getEntity();
+            Assertions.assertEquals(validDto.getId(), superHeroEntityCaptor.getValue().getId());
+            Assertions.assertEquals(validDto.getName(), superHeroEntityCaptor.getValue().getName());
+            Assertions.assertEquals(validDto.getDescription(), superHeroEntityCaptor.getValue().getDescription());
+        }
 
-			Mockito.when(superHeroRepository.findFirstByNameIgnoreCase(ArgumentMatchers.anyString())).thenReturn(Optional.empty());
-			Mockito.when(superHeroRepository.findById(ArgumentMatchers.anyLong())).thenReturn(Optional.of(validEntity));
+    }
 
-			//when
-			superHeroesService.createSuperHero(validDto);
+    @Nested
+    class updateSuperHeroTest {
 
-			//then
-			Mockito.verify(superHeroRepository, Mockito.times(1))
-					.saveAndFlush(superHeroEntityCaptor.capture());
-			Mockito.verify(heroSuperPowerRepository, Mockito.times(1)).saveAllAndFlush(ArgumentMatchers.any());
+        @Test
+        void givenNullParameters_ThenThrowsException() {
+            //given
+            final BusinessRuleViolatedException ex = Assertions.assertThrows(BusinessRuleViolatedException.class,
+                    () -> superHeroesService.updateSuperHero(null, SuperHeroFactory.getDTO()));
+            Assertions.assertEquals(ID_MANDATORY, ex.getMessage());
 
-			Assertions.assertEquals(validDto.getId(), superHeroEntityCaptor.getValue().getId());
-			Assertions.assertEquals(validDto.getName(), superHeroEntityCaptor.getValue().getName());
-			Assertions.assertEquals(validDto.getDescription(), superHeroEntityCaptor.getValue().getDescription());
-		}
+            final BusinessRuleViolatedException ex2 = Assertions.assertThrows(BusinessRuleViolatedException.class,
+                    () -> superHeroesService.updateSuperHero(SuperHeroFactory.HERO_ID, null));
+            Assertions.assertEquals(HERO_MANDATORY, ex2.getMessage());
 
-	}
+        }
 
-	@Nested
-	class updateSuperHeroTest {
+        @Test
+        void givenNotNullDto_WhenDtoIsNotValid_ThenThrowsException() {
+            //given
+            SuperHeroDTO noName = SuperHeroFactory.getDTO();
+            noName.setName(null);
+            SuperHeroDTO noPower = SuperHeroFactory.getDTO();
+            noPower.setSuperPower(null);
+            SuperHeroDTO alreadyExisting = SuperHeroFactory.getDTO();
+            SuperHeroEntity alreadyExistingE = SuperHeroFactory.getEntity();
+            alreadyExisting.setName("alreadyExisting");
+            alreadyExistingE.setName("alreadyExisting");
 
-		@Test
-		void givenNullParameters_ThenThrowsException() {
-			//given
-			final BusinessRuleViolatedException ex = Assertions.assertThrows(BusinessRuleViolatedException.class,
-					() -> superHeroesService.updateSuperHero(null,SuperHeroFactory.getDTO()));
-			Assertions.assertEquals(ID_MANDATORY, ex.getMessage());
+            Mockito.when(superHeroRepository.findFirstByNameIgnoreCase("alreadyExisting"))
+                    .thenReturn(Optional.of(alreadyExistingE));
+            Mockito.when(superHeroRepository.findFirstByNameIgnoreCase(noPower.getName())).thenReturn(Optional.empty());
+            Mockito.when(superHeroRepository.findById(ArgumentMatchers.anyLong()))
+                    .thenReturn(Optional.of(alreadyExistingE));
 
-			final BusinessRuleViolatedException ex2 = Assertions.assertThrows(BusinessRuleViolatedException.class,
-					() -> superHeroesService.updateSuperHero(SuperHeroFactory.HERO_ID,null ));
-			Assertions.assertEquals(HERO_MANDATORY, ex2.getMessage());
+            final BusinessRuleViolatedException ex = Assertions.assertThrows(BusinessRuleViolatedException.class,
+                    () -> superHeroesService.updateSuperHero(null, SuperHeroFactory.getDTO()));
+            Assertions.assertEquals(ID_MANDATORY, ex.getMessage());
 
-		}
+            final BusinessRuleViolatedException ex2 = Assertions.assertThrows(BusinessRuleViolatedException.class,
+                    () -> superHeroesService.updateSuperHero(SuperHeroFactory.HERO_ID, noName));
+            Assertions.assertEquals(NAME_EMPTY, ex2.getMessage());
 
-		@Test
-		void givenNotNullDto_WhenDtoIsNotValid_ThenThrowsException() {
-			//given
-			SuperHeroDTO noName = SuperHeroFactory.getDTO();
-			noName.setName(null);
-			SuperHeroDTO noPower = SuperHeroFactory.getDTO();
-			noPower.setSuperPower(null);
-			SuperHeroDTO alreadyExisting = SuperHeroFactory.getDTO();
-			SuperHeroEntity alreadyExistingE = SuperHeroFactory.getEntity();
-			alreadyExisting.setName("alreadyExisting");
-			alreadyExistingE.setName("alreadyExisting");
+            final BusinessRuleViolatedException ex3 = Assertions.assertThrows(BusinessRuleViolatedException.class,
+                    () -> superHeroesService.updateSuperHero(SuperHeroFactory.HERO_ID, noPower));
+            Assertions.assertEquals(POWERS_EMPTY, ex3.getMessage());
 
-			Mockito.when(superHeroRepository.findFirstByNameIgnoreCase("alreadyExisting")).thenReturn(Optional.of(alreadyExistingE));
-			Mockito.when(superHeroRepository.findFirstByNameIgnoreCase(noPower.getName())).thenReturn(Optional.empty());
-			Mockito.when(superHeroRepository.findById(ArgumentMatchers.anyLong())).thenReturn(Optional.of(alreadyExistingE));
-
-			final BusinessRuleViolatedException ex = Assertions.assertThrows(BusinessRuleViolatedException.class,
-					() -> superHeroesService.updateSuperHero(null,SuperHeroFactory.getDTO()));
-			Assertions.assertEquals(ID_MANDATORY, ex.getMessage());
-
-			final BusinessRuleViolatedException ex2 = Assertions.assertThrows(BusinessRuleViolatedException.class,
-					() -> superHeroesService.updateSuperHero(SuperHeroFactory.HERO_ID,noName));
-			Assertions.assertEquals(NAME_EMPTY, ex2.getMessage());
-
-			final BusinessRuleViolatedException ex3 = Assertions.assertThrows(BusinessRuleViolatedException.class,
-					() -> superHeroesService.updateSuperHero(SuperHeroFactory.HERO_ID,noPower));
-			Assertions.assertEquals(POWERS_EMPTY, ex3.getMessage());
-
-			//TODO Must fix inmutable collection when Mock
+            //TODO Must fix inmutable collection when Mock
 			/*final AlreadyExistException ex4 = Assertions.assertThrows(AlreadyExistException.class,
 					() -> superHeroesService.updateSuperHero(SuperHeroFactory.HERO_ID,alreadyExisting));
 			Assertions.assertTrue(ex4.getMessage().contains("This Hero already exists"));*/
 
-		}
-		@Test
-		@Disabled
-		void givenValidatedDto_ThenUpdatesHero() {
-			//given
+        }
 
-			SuperHeroDTO validDto = SuperHeroFactory.getDTO();
-			SuperHeroEntity validEntity = SuperHeroFactory.getEntity();
+        @Test
+        @Disabled
+        void givenValidatedDto_ThenUpdatesHero() {
+            //given
 
-			Mockito.when(superHeroRepository.findFirstByNameIgnoreCase(ArgumentMatchers.anyString())).thenReturn(Optional.empty());
-			Mockito.when(superHeroRepository.findById(ArgumentMatchers.anyLong())).thenReturn(Optional.of(validEntity));
-			//TODO Must fix inmutable collection when Mock
-			//when
-			superHeroesService.updateSuperHero(SuperHeroFactory.HERO_ID,validDto);
+            SuperHeroDTO validDto = SuperHeroFactory.getDTO();
+            SuperHeroEntity validEntity = SuperHeroFactory.getEntity();
 
-			//then
-			Mockito.verify(superHeroRepository, Mockito.times(1))
-					.saveAndFlush(superHeroEntityCaptor.capture());
-			Mockito.verify(heroSuperPowerRepository, Mockito.times(1)).saveAllAndFlush(ArgumentMatchers.any());
+            Mockito.when(superHeroRepository.findFirstByNameIgnoreCase(ArgumentMatchers.anyString()))
+                    .thenReturn(Optional.empty());
+            Mockito.when(superHeroRepository.findById(ArgumentMatchers.anyLong())).thenReturn(Optional.of(validEntity));
+            //TODO Must fix inmutable collection when Mock
+            //when
+            superHeroesService.updateSuperHero(SuperHeroFactory.HERO_ID, validDto);
 
-			Assertions.assertEquals(validDto.getId(), superHeroEntityCaptor.getValue().getId());
-			Assertions.assertEquals(validDto.getName(), superHeroEntityCaptor.getValue().getName());
-			Assertions.assertEquals(validDto.getDescription(), superHeroEntityCaptor.getValue().getDescription());
-		}
+            //then
+            Mockito.verify(superHeroRepository, Mockito.times(1)).saveAndFlush(superHeroEntityCaptor.capture());
+            Mockito.verify(heroSuperPowerRepository, Mockito.times(1)).saveAllAndFlush(ArgumentMatchers.any());
 
-	}
+            Assertions.assertEquals(validDto.getId(), superHeroEntityCaptor.getValue().getId());
+            Assertions.assertEquals(validDto.getName(), superHeroEntityCaptor.getValue().getName());
+            Assertions.assertEquals(validDto.getDescription(), superHeroEntityCaptor.getValue().getDescription());
+        }
 
-	/**
-	 * deleteSuperHeroById test cases
-	 */
-	@Nested
-	@DisplayName("deleteSuperHeroById test cases")
-	class deleteSuperHeroByIdTest {
-		@Test
-		@DisplayName("Throws exception when hero ID is null")
-		void givenNullId_thenThrowsException() {
-			final BusinessRuleViolatedException ex = Assertions.assertThrows(BusinessRuleViolatedException.class,
-					() -> superHeroesService.deleteSuperHeroById(null));
-			Assertions.assertEquals(ID_MANDATORY, ex.getMessage());
-		}
-		@Test
-		@DisplayName("Throws exception when hero ID does not exist")
-		void givenNonExistingId_thenThrowsException() {
+    }
 
-			Mockito.when(superHeroRepository.findById(SuperHeroFactory.HERO_ID)).thenReturn(Optional.empty());
+    /**
+     * deleteSuperHeroById test cases
+     */
+    @Nested
+    @DisplayName("deleteSuperHeroById test cases")
+    class deleteSuperHeroByIdTest {
+        @Test
+        @DisplayName("Throws exception when hero ID is null")
+        void givenNullId_thenThrowsException() {
+            final BusinessRuleViolatedException ex = Assertions.assertThrows(BusinessRuleViolatedException.class,
+                    () -> superHeroesService.deleteSuperHeroById(null));
+            Assertions.assertEquals(ID_MANDATORY, ex.getMessage());
+        }
 
-			final NotFoundException ex = Assertions.assertThrows(NotFoundException.class,
-					() -> superHeroesService.deleteSuperHeroById(SuperHeroFactory.HERO_ID));
-			Assertions.assertEquals("Not found hero with id "+SuperHeroFactory.HERO_ID, ex.getMessage());
-		}
-		@Test
-		void givenExistingHero_thenDeletesIt() {
+        @Test
+        @DisplayName("Throws exception when hero ID does not exist")
+        void givenNonExistingId_thenThrowsException() {
 
-			final SuperHeroEntity heroToDelete = SuperHeroFactory.getEntity();
+            Mockito.when(superHeroRepository.findById(SuperHeroFactory.HERO_ID)).thenReturn(Optional.empty());
 
-			Mockito.when(superHeroRepository.findById(SuperHeroFactory.HERO_ID)).thenReturn(Optional.of(heroToDelete));
+            final NotFoundException ex = Assertions.assertThrows(NotFoundException.class,
+                    () -> superHeroesService.deleteSuperHeroById(SuperHeroFactory.HERO_ID));
+            Assertions.assertEquals("Not found hero with id " + SuperHeroFactory.HERO_ID, ex.getMessage());
+        }
 
-			superHeroesService.deleteSuperHeroById(SuperHeroFactory.HERO_ID);
+        @Test
+        void givenExistingHero_thenDeletesIt() {
 
-			Mockito.verify(heroSuperPowerRepository, Mockito.times(1)).deleteAllBySuperheroId(SuperHeroFactory.HERO_ID);
-			Mockito.verify(superHeroRepository, Mockito.times(1)).deleteById(SuperHeroFactory.HERO_ID);
+            final SuperHeroEntity heroToDelete = SuperHeroFactory.getEntity();
 
-		}
+            Mockito.when(superHeroRepository.findById(SuperHeroFactory.HERO_ID)).thenReturn(Optional.of(heroToDelete));
 
-	}
+            superHeroesService.deleteSuperHeroById(SuperHeroFactory.HERO_ID);
 
-	/**
-	 * deleteAllSuperHeros test cases
-	 */
-	@Nested
-	@DisplayName("deleteAllSuperHeros test cases")
-	class deleteAllSuperHeros {
-		@Test
-		@DisplayName("Does nothing when no existing registers")
-		void givenNonExistingRegisters_thenDoNothing() {
+            Mockito.verify(heroSuperPowerRepository, Mockito.times(1)).deleteAllBySuperheroId(SuperHeroFactory.HERO_ID);
+            Mockito.verify(superHeroRepository, Mockito.times(1)).deleteById(SuperHeroFactory.HERO_ID);
 
-			Mockito.when(heroSuperPowerRepository.findAll()).thenReturn(List.of());
-			Mockito.when(superHeroRepository.findAll()).thenReturn(List.of());
+        }
 
-			superHeroesService.deleteAllSuperHeros();
+    }
 
-			Mockito.verify(heroSuperPowerRepository, Mockito.times(0)).deleteAll();
-			Mockito.verify(superHeroRepository, Mockito.times(0)).deleteAll();
-		}
-		@Test
-		@DisplayName("Deletes all when existing registers")
-		void givenExistingRegisters_thenDeletesAll() {
+    /**
+     * deleteAllSuperHeros test cases
+     */
+    @Nested
+    @DisplayName("deleteAllSuperHeros test cases")
+    class deleteAllSuperHeros {
+        @Test
+        @DisplayName("Does nothing when no existing registers")
+        void givenNonExistingRegisters_thenDoNothing() {
 
-			final SuperHeroEntity heroToDelete = SuperHeroFactory.getEntity();
-			final HeroSuperPowerEntity powerToDelete = SuperHeroFactory.getPowerEntity(SuperHeroFactory.HERO_ID);
+            Mockito.when(heroSuperPowerRepository.findAll()).thenReturn(List.of());
+            Mockito.when(superHeroRepository.findAll()).thenReturn(List.of());
 
-			Mockito.when(heroSuperPowerRepository.findAll()).thenReturn(List.of(powerToDelete));
-			Mockito.when(superHeroRepository.findAll()).thenReturn(List.of(heroToDelete));
+            superHeroesService.deleteAllSuperHeroes();
 
-			superHeroesService.deleteAllSuperHeros();
+            Mockito.verify(heroSuperPowerRepository, Mockito.times(0)).deleteAll();
+            Mockito.verify(superHeroRepository, Mockito.times(0)).deleteAll();
+        }
 
-			Mockito.verify(heroSuperPowerRepository, Mockito.times(1)).deleteAll();
-			Mockito.verify(superHeroRepository, Mockito.times(1)).deleteAll();
+        @Test
+        @DisplayName("Deletes all when existing registers")
+        void givenExistingRegisters_thenDeletesAll() {
 
-		}
+            final SuperHeroEntity heroToDelete = SuperHeroFactory.getEntity();
+            final HeroSuperPowerEntity powerToDelete = SuperHeroFactory.getPowerEntity(SuperHeroFactory.HERO_ID);
 
-	}
+            Mockito.when(heroSuperPowerRepository.findAll()).thenReturn(List.of(powerToDelete));
+            Mockito.when(superHeroRepository.findAll()).thenReturn(List.of(heroToDelete));
+
+            superHeroesService.deleteAllSuperHeroes();
+
+            Mockito.verify(heroSuperPowerRepository, Mockito.times(1)).deleteAll();
+            Mockito.verify(superHeroRepository, Mockito.times(1)).deleteAll();
+
+        }
+
+    }
 
 }

@@ -32,7 +32,6 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.ignoringRequestMatchers("/h2-ui/**").disable())
                 .headers(header -> header.frameOptions((fo) -> fo.sameOrigin())).authorizeHttpRequests(
                         authRequest -> authRequest.requestMatchers(RequestMappings.AUTH + "/**").permitAll()
-                                //.requestMatchers(RequestMappings.AUTH + "/login").permitAll()
                                 .requestMatchers(toH2Console()).permitAll()
                                 .requestMatchers("/actuator/**", "/api-docs/**", "/v2/api-docs/**", "/v3/api-docs/**")
                                 .permitAll().requestMatchers(RequestMappings.AUTH + "/**").permitAll()
@@ -42,17 +41,6 @@ public class SecurityConfig {
                                         "/configuration/ui", "/configuration/security", "/swagger-ui**", "/swagger-ui/**",
                                         "/webjars/**", "/swagger-resources/**", "/swagger-ui.html").permitAll()
                                 .requestMatchers("/").permitAll()
-
-//                        .requestMatchers(GET,RequestMappings.API+RequestMappings.SUPERHEROES).hasAnyRole(ADMIN.name(), USER.name())
-//                        .requestMatchers(GET,RequestMappings.API+RequestMappings.SUPERHEROES+"/**").hasAnyRole(ADMIN.name(), USER.name())
-//                        .requestMatchers(POST,RequestMappings.API+RequestMappings.SUPERHEROES).hasAnyRole(ADMIN.name())
-//                        .requestMatchers(POST,RequestMappings.API+RequestMappings.SUPERHEROES+"/**").hasAnyRole(ADMIN.name())
-//                        .requestMatchers(PUT, RequestMappings.API+RequestMappings.SUPERHEROES).hasAnyRole(ADMIN.name())
-//                        .requestMatchers(PUT, RequestMappings.API+RequestMappings.SUPERHEROES+"/**").hasAnyRole(ADMIN.name())
-//                        .requestMatchers(PATCH, RequestMappings.API+RequestMappings.SUPERHEROES).hasAnyRole(ADMIN.name(), USER.name())
-//                        .requestMatchers(PATCH, RequestMappings.API+RequestMappings.SUPERHEROES+"/**").hasAnyRole(ADMIN.name(), USER.name())
-//                        .requestMatchers(DELETE, RequestMappings.API+RequestMappings.SUPERHEROES).hasAnyRole(ADMIN.name())
-//                        .requestMatchers(DELETE, RequestMappings.API+RequestMappings.SUPERHEROES+"/**").hasAnyRole(ADMIN.name())
 
                                 .anyRequest().authenticated()).sessionManagement(
                         sessionManager -> sessionManager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

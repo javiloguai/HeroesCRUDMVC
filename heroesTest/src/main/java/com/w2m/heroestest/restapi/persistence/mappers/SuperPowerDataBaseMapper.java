@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
 /**
- * The Interface LicenceMapper.
+ * The Interface SuperPowerDataBaseMapper.
  */
 @Mapper(componentModel = MapperConstants.COMPONENT_MODEL)
 public interface SuperPowerDataBaseMapper extends DatabaseMapper<SuperPowerDomain, HeroSuperPowerEntity> {

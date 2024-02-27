@@ -1,8 +1,10 @@
 package com.w2m.heroestest.integrationtests;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.w2m.heroestest.config.exception.BusinessRuleViolatedException;
 import com.w2m.heroestest.config.exception.NotFoundException;
-import com.w2m.heroestest.config.jackson.DefaultApplicationJsonMapper;
 import com.w2m.heroestest.config.test.TestControllerConfig;
 import com.w2m.heroestest.constants.RequestMappings;
 import com.w2m.heroestest.factories.SuperHeroFactory;
@@ -33,6 +35,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -42,7 +45,7 @@ import static org.mockito.ArgumentMatchers.any;
  */
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest(properties = { "spring.main.banner-mode=off" })
-@ContextConfiguration(classes = { TestControllerConfig.class, /*TestWebMvcConfig.class, */SuperHeroeController.class })
+@ContextConfiguration(classes = { TestControllerConfig.class, SuperHeroeController.class })
 @AutoConfigureMockMvc(addFilters = false)
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 @ActiveProfiles(TestControllerConfig.PROFILE)
@@ -54,8 +57,6 @@ class SuperHeroeControllerIT {
 
     @Autowired
     private MockMvc mockMvc;
-
-    private DefaultApplicationJsonMapper defaultApplicationJsonMapper;
 
     @MockBean
     private PagedResourcesAssembler<SuperHeroDomain> pagedResourcesAssembler;
@@ -69,7 +70,34 @@ class SuperHeroeControllerIT {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        defaultApplicationJsonMapper = new DefaultApplicationJsonMapper(getMapper);
+    }
+
+    public <T> T getObjectFromJson(final String json, final Class<T> clazz) {
+        T result = null;
+        try {
+            result = getMapper.readValue(json.getBytes(), clazz);
+
+        } catch (final IOException exception) {
+            throw new BusinessRuleViolatedException(exception);
+        }
+        return result;
+    }
+
+    public String getJsonFromObject(final Object abstractConfigDto) {
+        final StringBuilder jsonConfig = new StringBuilder();
+
+        try {
+
+            final ObjectMapper mapper = getMapper;
+            mapper.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
+            final ObjectWriter writer = mapper.writer().withDefaultPrettyPrinter();
+            jsonConfig.append(writer.writeValueAsString(abstractConfigDto));
+
+        } catch (final IOException exception) {
+            throw new BusinessRuleViolatedException(exception);
+        }
+
+        return jsonConfig.toString();
     }
 
     /**
@@ -119,8 +147,7 @@ class SuperHeroeControllerIT {
 
             Mockito.verify(superHeroesService, Mockito.times(1)).findById(ArgumentMatchers.anyLong());
             final String response = result.getResponse().getContentAsString();
-            final SuperHeroDomain searched = defaultApplicationJsonMapper.getObjectFromJson(response,
-                    SuperHeroDomain.class);
+            final SuperHeroDomain searched = getObjectFromJson(response, SuperHeroDomain.class);
 
             Assertions.assertEquals(domainToResponse.getName(), searched.getName());
             Assertions.assertEquals(domainToResponse.getDescription(), searched.getDescription());
@@ -136,7 +163,6 @@ class SuperHeroeControllerIT {
         // because of this I do not waste any more time implementing this method
         @Test
         @Disabled
-        //@WithMockUser(username = "admin", roles = "ADMIN")
         void givenRequestingUserWithPermissions_ThenOperationIsAccepted() throws Exception {
             Assertions.assertTrue(true);
         }
@@ -151,7 +177,6 @@ class SuperHeroeControllerIT {
         // because of this I do not waste any more time implementing this method
         @Test
         @Disabled
-        //@WithMockUser(username = "admin", roles = "ADMIN")
         void givenRequestingUserWithPermissions_ThenOperationIsAccepted() throws Exception {
             Assertions.assertTrue(true);
         }
@@ -166,7 +191,6 @@ class SuperHeroeControllerIT {
         // because of this I do not waste any more time implementing this method
         @Test
         @Disabled
-        //@WithMockUser(username = "admin", roles = "ADMIN")
         void givenRequestingUserWithPermissions_ThenOperationIsAccepted() throws Exception {
             Assertions.assertTrue(true);
         }
@@ -178,12 +202,11 @@ class SuperHeroeControllerIT {
 
         @Test
         @DisplayName("Create new group if requesting user has permissions")
-            //@WithMockUser(username = "admin", roles = "ADMIN")
         void givenRequestingUserWithPermissions_ThenOperationIsAccepted() throws Exception {
 
             final HeroRequest request = SuperHeroFactory.getRequest();
 
-            final String requestBody = defaultApplicationJsonMapper.getJsonFromObject(request);
+            final String requestBody = getJsonFromObject(request);
             final SuperHeroDomain domainToResponse = SuperHeroDomain.builder().name(request.getName())
                     .description(request.getDescription()).build();
 
@@ -199,8 +222,7 @@ class SuperHeroeControllerIT {
 
             Mockito.verify(superHeroesService, Mockito.times(1)).createSuperHero(any());
             final String response = result.getResponse().getContentAsString();
-            final SuperHeroDomain domain = defaultApplicationJsonMapper.getObjectFromJson(response,
-                    SuperHeroDomain.class);
+            final SuperHeroDomain domain = getObjectFromJson(response, SuperHeroDomain.class);
 
             Assertions.assertEquals(request.getName(), domain.getName());
             Assertions.assertEquals(request.getDescription(), domain.getDescription());
@@ -209,12 +231,12 @@ class SuperHeroeControllerIT {
 
         @Test
         @DisplayName("Access is denied if requesting user does not have permissions")
-        //@WithMockUser(username = "admin", roles = "ADMIN")
+
         @Disabled
         void givenRequestingUserWithoutPermissions_ThenOperationIsDenied() {
             final HeroRequest request = SuperHeroFactory.getRequest();
 
-            final String requestBody = defaultApplicationJsonMapper.getJsonFromObject(request);
+            final String requestBody = getJsonFromObject(request);
 
             final SuperHeroDomain domainToResponse = SuperHeroDomain.builder().name(request.getName())
                     .description(request.getDescription()).build();
@@ -245,11 +267,10 @@ class SuperHeroeControllerIT {
     class ModifyGroupTest {
         @Test
         @DisplayName("Modify the group if requesting user has permissions")
-            //@WithMockUser(username = "admin", roles = "ADMIN")
         void givenRequestingUserWithPermissions_ThenOperationIsAccepted() throws Exception {
             final HeroRequest request = SuperHeroFactory.getRequest();
 
-            final String requestBody = defaultApplicationJsonMapper.getJsonFromObject(request);
+            final String requestBody = getJsonFromObject(request);
 
             final SuperHeroDomain domainToResponse = SuperHeroDomain.builder().name(request.getName())
                     .description(request.getDescription()).build();
@@ -268,8 +289,7 @@ class SuperHeroeControllerIT {
             Mockito.verify(superHeroesService, Mockito.times(1))
                     .updateSuperHero(ArgumentMatchers.anyLong(), ArgumentMatchers.any());
             final String response = result.getResponse().getContentAsString();
-            final SuperHeroDomain domain = defaultApplicationJsonMapper.getObjectFromJson(response,
-                    SuperHeroDomain.class);
+            final SuperHeroDomain domain = getObjectFromJson(response, SuperHeroDomain.class);
 
             Assertions.assertEquals(request.getName(), domain.getName());
             Assertions.assertEquals(request.getDescription(), domain.getDescription());
@@ -277,12 +297,12 @@ class SuperHeroeControllerIT {
 
         @Test
         @DisplayName("Access is denied if requesting user does not have permissions")
-        //@WithMockUser(username = "admin", roles = "ADMIN")
+
         @Disabled
         void givenRequestingUserWithoutPermissions_ThenOperationIsDenied() {
             final HeroRequest request = SuperHeroFactory.getRequest();
 
-            final String requestBody = defaultApplicationJsonMapper.getJsonFromObject(request);
+            final String requestBody = getJsonFromObject(request);
 
             // @formatter:off
 
@@ -307,7 +327,6 @@ class SuperHeroeControllerIT {
     @DisplayName("deleteSuperHero Test test cases")
     class deleteSuperHeroTest {
         @Test
-            //@WithMockUser(username = "admin", roles = "ADMIN")
         void givenRequestingUserWithPermissions_ThenOperationIsAccepted() throws Exception {
 
             //// @formatter:off
@@ -322,7 +341,6 @@ class SuperHeroeControllerIT {
         @Test
         @DisplayName("Access is denied if requesting user does not have permissions")
         @Disabled
-//@WithMockUser(username = "admin", roles = "ADMIN")
         void givenRequestingUserWithoutPermissions_ThenOperationIsDenied() {
 
             try {
@@ -346,7 +364,6 @@ class SuperHeroeControllerIT {
     @DisplayName("deleteAllSuperHeros Test test cases")
     class deleteAllSuperHerosTest {
         @Test
-            //@WithMockUser(username = "admin", roles = "ADMIN")
         void givenRequestingUserWithPermissions_ThenOperationIsAccepted() throws Exception {
 
             //// @formatter:off
@@ -355,13 +372,12 @@ class SuperHeroeControllerIT {
                             .accept(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isNoContent());
             // @formatter:on
-            Mockito.verify(superHeroesService, Mockito.times(1)).deleteAllSuperHeros();
+            Mockito.verify(superHeroesService, Mockito.times(1)).deleteAllSuperHeroes();
         }
 
         @Test
         @DisplayName("Access is denied if requesting user does not have permissions")
         @Disabled
-//@WithMockUser(username = "admin", roles = "ADMIN")
         void givenRequestingUserWithoutPermissions_ThenOperationIsDenied() {
 
             try {
@@ -371,7 +387,7 @@ class SuperHeroeControllerIT {
                                 .accept(MediaType.APPLICATION_JSON))
                         .andExpect(MockMvcResultMatchers.status().isForbidden());
                 // @formatter:on
-                Mockito.verify(superHeroesService, Mockito.times(0)).deleteAllSuperHeros();
+                Mockito.verify(superHeroesService, Mockito.times(0)).deleteAllSuperHeroes();
                 // @formatter:on
                 Assertions.fail();
             } catch (final Exception e) {

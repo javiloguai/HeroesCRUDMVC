@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * The Imported medical staff licence request mapper.
+ * The SuperHero request mapper.
  */
 @Mapper(componentModel = MapperConstants.COMPONENT_MODEL)
 public interface SuperHeroRequestMapper extends RequestMapper<HeroRequest, SuperHeroDTO> {

@@ -23,9 +23,7 @@ import java.time.format.DateTimeFormatter;
  */
 @Profile("controllerContext")
 @Configuration
-//@EnableWebSecurity
 @EnableWebMvc
-//@EnableMethodSecurity
 public class TestControllerConfig {
 
     public static final String PROFILE = "controllerContext";

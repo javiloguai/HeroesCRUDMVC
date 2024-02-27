@@ -13,7 +13,6 @@ import java.util.List;
  */
 @Data
 @Builder
-
 @AllArgsConstructor
 @NoArgsConstructor
 public class SuperHeroDomain implements Serializable {

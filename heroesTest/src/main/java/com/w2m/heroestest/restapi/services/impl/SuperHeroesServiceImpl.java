@@ -227,7 +227,7 @@ public class SuperHeroesServiceImpl extends BasicService implements SuperHeroesS
             @CacheEvict(value = "pagedheroes", allEntries = true), @CacheEvict(value = "allheroes", allEntries = true),
             @CacheEvict(value = "pagedallheroes", allEntries = true),
             @CacheEvict(value = "powers", allEntries = true) })
-    public void deleteAllSuperHeros() {
+    public void deleteAllSuperHeroes() {
         if (!heroSuperPowerRepository.findAll().isEmpty()) {
             heroSuperPowerRepository.deleteAll();
             heroSuperPowerRepository.flush();

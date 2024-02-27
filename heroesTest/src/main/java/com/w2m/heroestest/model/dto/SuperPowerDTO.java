@@ -11,7 +11,6 @@ import java.io.Serializable;
  */
 @Data
 @Builder
-//@NoArgsConstructor
 public class SuperPowerDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;

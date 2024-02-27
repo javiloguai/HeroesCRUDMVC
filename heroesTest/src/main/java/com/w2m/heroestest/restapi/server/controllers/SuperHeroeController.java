@@ -65,7 +65,6 @@ public class SuperHeroeController extends BaseController {
                     @Content(schema = @Schema()) }),
             @ApiResponse(responseCode = "403", description = "Forbidden.", content = {
                     @Content(schema = @Schema()) }) })
-    //  @PreAuthorize("hasAnyAuthority('CONSULTANT_TYPE1')")
     @LogExecutionTime
     public ResponseEntity<List<HeroResponse>> getAllSuperHeroes() {
         LOGGER.debug("We can log whatever we need...");
@@ -80,7 +79,6 @@ public class SuperHeroeController extends BaseController {
     }
 
     @GetMapping("/page")
-    //@ResponseStatus(code = HttpStatus.OK)
     @Operation(summary = "Pages All the superheroes", description = "Gets All the superheroes paginated.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Successful retrieval of superheroes", content = @Content(array = @ArraySchema(schema = @Schema(implementation = HeroResponse.class)))),
@@ -89,7 +87,6 @@ public class SuperHeroeController extends BaseController {
             @ApiResponse(responseCode = "403", description = "Forbidden.", content = {
                     @Content(schema = @Schema()) }) })
     @LogExecutionTime
-    //  @PreAuthorize("hasAnyAuthority('CONSULTANT_TYPE1')")
     public ResponseEntity<PagedModel<HeroResponse>> pageAllSuperHeroes(@ParameterObject final Pageable pageable) {
         LOGGER.debug("We can log whatever we need...");
 
@@ -110,7 +107,6 @@ public class SuperHeroeController extends BaseController {
      * @return List
      */
     @GetMapping("/byName")
-    //@ResponseStatus(code = HttpStatus.OK)
     @Operation(summary = "Gets By Name", description = "Gets All the superheroes by name. The name IS CASE SENSITIVE.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Successful retrieval of superheroes", content = @Content(array = @ArraySchema(schema = @Schema(implementation = HeroResponse.class)))),
@@ -138,7 +134,6 @@ public class SuperHeroeController extends BaseController {
      * @return List
      */
     @GetMapping("/byName/page")
-    //@ResponseStatus(code = HttpStatus.OK)
     @Operation(summary = "Page By Name", description = "Pages All the superheroes by name. The name ignores case sensitive.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Successful retrieval of superheroes", content = @Content(array = @ArraySchema(schema = @Schema(implementation = HeroResponse.class)))),
@@ -147,7 +142,6 @@ public class SuperHeroeController extends BaseController {
             @ApiResponse(responseCode = "403", description = "Forbidden.", content = {
                     @Content(schema = @Schema()) }) })
     @LogExecutionTime
-    //  @PreAuthorize("hasAnyAuthority('CONSULTANT_TYPE1')")
     public ResponseEntity<PagedModel<HeroResponse>> pageAllSuperHeroesByName(@RequestParam(required = true) String name,
             @ParameterObject final Pageable pageable) {
         LOGGER.debug("We can log whatever we need...");
@@ -165,7 +159,6 @@ public class SuperHeroeController extends BaseController {
     }
 
     @GetMapping("/byPower")
-    //@ResponseStatus(code = HttpStatus.OK)
     @Operation(summary = "Gets by power", description = "Gets All the superheroes with a particular power")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Successful retrieval of superheroes", content = @Content(array = @ArraySchema(schema = @Schema(implementation = HeroResponse.class)))),
@@ -187,7 +180,6 @@ public class SuperHeroeController extends BaseController {
     }
 
     @GetMapping("/{id}")
-    //@ResponseStatus(code = HttpStatus.OK)
     @Operation(summary = "Get by id", description = "Gets a superhero by his/her id.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Successful retrieval of the superhero", content = {
@@ -197,7 +189,6 @@ public class SuperHeroeController extends BaseController {
             @ApiResponse(responseCode = "403", description = "Forbidden.", content = {
                     @Content(schema = @Schema()) }) })
     @LogExecutionTime
-    //  @PreAuthorize("hasAnyAuthority('CONSULTANT_TYPE1')")
     public ResponseEntity<HeroResponse> getSuperHeroById(@PathVariable(value = "id", required = true) Long id) {
         LOGGER.debug("We can log whatever we need...");
         SuperHeroDomain hero = superHeroesService.findById(id);
@@ -246,7 +237,6 @@ public class SuperHeroeController extends BaseController {
             @ApiResponse(responseCode = "404", description = "Hero not found for the given id", content = {
                     @Content(schema = @Schema()) }) })
     @LogExecutionTime
-//    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public ResponseEntity<HeroResponse> updateSuperHero(@PathVariable(value = "id", required = true) Long id,
             @RequestBody HeroRequest heroRequest) {
         LOGGER.debug(String.format("Init - Update existing hero %s", heroRequest.toString()));
@@ -265,7 +255,6 @@ public class SuperHeroeController extends BaseController {
             @ApiResponse(responseCode = "404", description = "Hero not found for the given id", content = {
                     @Content(schema = @Schema()) }) })
     @LogExecutionTime
-//    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public ResponseEntity<HeroResponse> addPowerToSuperHero(@PathVariable(value = "id", required = true) Long id,
             @RequestParam(required = true) SuperPower power) {
         LOGGER.debug(String.format("Init - Add extra power to hero with id %s", id));
@@ -283,7 +272,6 @@ public class SuperHeroeController extends BaseController {
             @ApiResponse(responseCode = "404", description = "Hero not found for the given id", content = {
                     @Content(schema = @Schema()) }) })
     @LogExecutionTime
-    //@PreAuthorize("hasAnyAuthority('ADMIN')")
     public ResponseEntity<HttpStatus> deleteSuperHero(@PathVariable("id") long id) {
 
         LOGGER.debug(String.format("Init - Delete hero with id %s", id));
@@ -300,10 +288,9 @@ public class SuperHeroeController extends BaseController {
     @ApiResponse(responseCode = "204", description = "Hero is deleted or does nothing if Hero list is empty", content = {
             @Content(schema = @Schema()) })
     @LogExecutionTime
-    //@PreAuthorize("hasAnyAuthority('ADMIN')")
-    public ResponseEntity<HttpStatus> deleteAllSuperHeros() {
+    public ResponseEntity<HttpStatus> deleteAllSuperHeroes() {
         LOGGER.debug("Init - Delete All heroes");
-        superHeroesService.deleteAllSuperHeros();
+        superHeroesService.deleteAllSuperHeroes();
 
         LOGGER.debug("End - Delete All heroes");
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

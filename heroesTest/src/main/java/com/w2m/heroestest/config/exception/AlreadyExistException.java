@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
- * The Class ServiceException.
+ * The Class AlreadyExistException.
  */
 @ResponseStatus(value = HttpStatus.CONFLICT)
 @EqualsAndHashCode(callSuper = true)

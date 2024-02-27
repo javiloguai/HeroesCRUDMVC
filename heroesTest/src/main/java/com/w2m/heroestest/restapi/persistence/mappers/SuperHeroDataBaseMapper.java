@@ -13,7 +13,7 @@ import org.mapstruct.factory.Mappers;
 import java.util.List;
 
 /**
- * The Interface LicenceMapper.
+ * The Interface SuperHeroDataBaseMapper.
  */
 @Mapper(componentModel = MapperConstants.COMPONENT_MODEL)
 public interface SuperHeroDataBaseMapper extends DatabaseMapper<SuperHeroDomain, SuperHeroEntity> {

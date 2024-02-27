@@ -8,12 +8,8 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-/**
- * @author jruizh
- */
 @Data
 @Builder
-
 @AllArgsConstructor
 @NoArgsConstructor
 public class SuperPowerDomain implements Serializable {
