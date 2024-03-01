@@ -1,4 +1,4 @@
-# HeroesTest
+# HeroesTest Springboot Complete CRUD MVC
 
 Technical Test Spring Boot. 
 Standard CRUD API in MVC Pattern 
