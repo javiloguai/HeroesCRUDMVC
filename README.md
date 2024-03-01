@@ -1,6 +1,7 @@
 # HeroesTest
 
-Technical Test Spring Boot for W2W
+Technical Test Spring Boot. 
+Standard CRUD API in MVC Pattern 
 
 This application implemented using: 
 #### Spring boot 3 
